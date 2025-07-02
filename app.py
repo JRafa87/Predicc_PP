@@ -15,7 +15,7 @@ if "historial" not in st.session_state:
     st.session_state["historial"] = []
 
 # Cargar modelos y encoders
-modelo_fertilidad, modelo_cultivo, scaler_fertilidad, scaler_cultivo, label_encoders = load_all_models()
+modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
 # Sección ubicación
 st.header("📍 Ubicación")
