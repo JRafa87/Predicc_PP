@@ -95,7 +95,13 @@ def main():
 
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
-            cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido") if cult_pred_idx is not None else None
+            if cult_pred_idx in range(len(encoders["cultivo"].classes_)):
+             cultivo = encoders["cultivo"].inverse_transform([cult_pred_idx])[0]
+        else:
+            cultivo = "Desconocido"
+
+            st.write("cult_pred_idx (output del modelo):", cult_pred_idx)
+            st.write("Encoder cultivo classes_:", encoders["cultivo"].classes_)
 
             st.markdown("---")
             st.subheader("🔎 Resultado")
