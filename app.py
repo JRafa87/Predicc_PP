@@ -116,6 +116,10 @@ def main():
                 "Altitud": altitud
             })
 
+            st.write("cult_pred_idx (output del modelo):", cult_pred_idx)
+            st.write("Encoder cultivo classes_:", encoders["cultivo"].classes_)
+
+
         if st.session_state.historial:
             st.markdown("---")
             st.subheader("📋 Historial de predicciones")
