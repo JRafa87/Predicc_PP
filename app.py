@@ -93,11 +93,14 @@ def main():
             st.write("Encoder condiciones_clima classes_:", encoders['condiciones_clima'].classes_)
 
 
-                      # ⚠️ Asegurarse que no se recodifican valores ya numéricos
+                 
+            # ⚠️ Asegurarse de no transformar columnas ya codificadas
             for col in encoders:
-                if col != 'cultivo' and col in input_data.columns:
-                    if input_data[col].dtype == object:
-                        input_data[col] = encoders[col].transform(input_data[col])
+             if col != 'cultivo' and col in input_data.columns:
+              clases = list(encoders[col].classes_)
+             if input_data[col].iloc[0] in clases:
+              input_data[col] = encoders[col].transform(input_data[col])
+
 
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
