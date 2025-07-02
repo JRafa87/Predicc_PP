@@ -85,6 +85,10 @@ def main():
                 "evapotranspiracion": evapotranspiracion
             }])
 
+            st.write("condiciones_clima (input):", condiciones_clima)
+            st.write("Encoder condiciones_clima classes_:", encoders['condiciones_clima'].classes_)
+
+
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
             cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido") if cult_pred_idx is not None else None
