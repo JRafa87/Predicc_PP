@@ -33,7 +33,6 @@ def main():
                 st.session_state.update({
                     "humedad": clima["humedad"],
                     "temperatura": clima["temperatura"],
-                    "condiciones_clima_texto": clima["condiciones_clima"],
                     "ubicacion": clima["ubicacion"],
                     "altitud": altitud
                 })
