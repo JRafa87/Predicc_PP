@@ -8,7 +8,6 @@ def get_elevation(lat, lon):
     except:
         return None
 
-from .apis import mapear_clima  # asegúrate que esté importado si está en otro archivo
 
 def get_weather(lat, lon, api_key):
     try:
