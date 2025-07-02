@@ -1,3 +1,4 @@
+# modules/apis.py
 import requests
 
 def get_elevation(lat, lon):
@@ -8,6 +9,14 @@ def get_elevation(lat, lon):
     except:
         return None
 
+def mapear_clima(condicion):
+    mapa = {
+        "Drizzle": 0,      # llovizna
+        "Rain": 1,         # lluvioso
+        "Clouds": 2,       # nublado
+        "Clear": 3         # soleado
+    }
+    return mapa.get(condicion, 2)  # valor por defecto: nublado
 
 def get_weather(lat, lon, api_key):
     try:
@@ -15,7 +24,6 @@ def get_weather(lat, lon, api_key):
         params = {"lat": lat, "lon": lon, "appid": api_key, "units": "metric"}
         data = requests.get(url, params=params).json()
 
-        # mapear condiciones del clima directamente aquí
         condiciones_clima_texto = data["weather"][0]["main"]
         condiciones_clima = mapear_clima(condiciones_clima_texto)
 
@@ -26,4 +34,10 @@ def get_weather(lat, lon, api_key):
             "ubicacion": data.get("name", "")
         }
     except:
-        return {"humedad": None, "temperatura": None, "condiciones_clima": 2, "ubicacion": ""}
+        return {
+            "humedad": None,
+            "temperatura": None,
+            "condiciones_clima": 2,
+            "ubicacion": ""
+        }
+
