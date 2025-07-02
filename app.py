@@ -17,22 +17,6 @@ def main():
         # Cargar modelos y encoders
         modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
-        # Diccionario descriptivo para tipo de suelo
-        tipo_suelo_dict = {
-            "arcilloso": 0,
-            "arenoso": 1,
-            "franco": 2,
-            "volcánico": 3
-        }
-
-        # Diccionario descriptivo para condiciones del clima
-        condiciones_clima_dict = {
-            "llovizna": 0,
-            "lluvioso": 1,
-            "nublado": 2,
-            "soleado": 3
-        }
-
         # Diccionario de nombres de cultivos
         cultivo_dict = {i: clase for i, clase in enumerate(encoders['cultivo'].classes_)}
 
@@ -59,8 +43,7 @@ def main():
 
         # Datos del suelo
         st.header("🌾 Datos del suelo")
-        tipo_suelo_label = st.selectbox("Tipo de suelo", list(tipo_suelo_dict.keys()))
-        tipo_suelo = tipo_suelo_dict[tipo_suelo_label]
+        tipo_suelo = st.number_input("Tipo de suelo (número)", min_value=0, max_value=3, step=1)
 
         pH = st.number_input("pH", min_value=0.0, max_value=14.0, step=0.1)
         materia_organica = st.number_input("Materia orgánica (%)", min_value=0.0, step=0.1)
@@ -74,10 +57,7 @@ def main():
         st.header("🌤 Datos ambientales")
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
-
-        condiciones_clima_label = st.selectbox("Condiciones del clima", list(condiciones_clima_dict.keys()))
-        condiciones_clima = condiciones_clima_dict[condiciones_clima_label]
-
+        condiciones_clima = st.number_input("Condiciones del clima (número)", min_value=0, max_value=3, step=1, value=int(st.session_state.get("condiciones_clima", 0)))
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
         evapotranspiracion = st.number_input("Evapotranspiración (mm/día)", min_value=0.0, step=0.1)
@@ -116,7 +96,7 @@ def main():
                 "Ubicación": st.session_state.get("ubicacion", "Manual"),
                 "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
                 "Cultivo": cultivo_predicho if cultivo_predicho else "No recomendado",
-                "Tipo de suelo": tipo_suelo_label,
+                "Tipo de suelo": tipo_suelo,
                 "Mes": mes,
                 "Temperatura": temperatura,
                 "Humedad": humedad,
