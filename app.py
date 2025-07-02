@@ -51,10 +51,10 @@ def main():
 
         # Datos climáticos
         st.header("🌤 Datos ambientales")
-        humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=st.session_state.get("humedad", 0.0))
-        temperatura = st.number_input("Temperatura (°C)", value=st.session_state.get("temperatura", 0.0))
+        humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
+        temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
         condiciones_clima = st.selectbox("Condiciones del clima", ["Clear", "Clouds", "Rain", "Drizzle", "Thunderstorm", "Snow", "Mist"])
-        altitud = st.number_input("Altitud (m)", value=st.session_state.get("altitud", 0.0))
+        altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
         evapotranspiracion = st.number_input("Evapotranspiración (mm/día)", min_value=0.0, step=0.1)
         tipo_riego = st.selectbox("Tipo de riego", ["0", "1", "2"])
