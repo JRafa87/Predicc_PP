@@ -19,10 +19,10 @@ def main():
 
         # Diccionario descriptivo para tipo de suelo
         tipo_suelo_dict = {
-            "arcilloso": "3",
-            "arenoso": "1",
-            "franco": "2",
-            "volcánico": "0"
+            "arcilloso": 0,
+            "arenoso": 1,
+            "franco": 2,
+            "volcánico": 3
         }
 
         # Diccionario descriptivo para condiciones del clima
