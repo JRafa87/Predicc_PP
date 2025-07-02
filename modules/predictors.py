@@ -1,15 +1,17 @@
 import pandas as pd
 
 def predecir(df_input, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders):
-    # Codificar categóricas (excepto cultivo)
+    import streamlit as st
+
+    # Codificar variables categóricas excepto 'cultivo'
     for col in encoders:
-     if col != 'cultivo' and col in input_data.columns:
-        if input_data[col].dtype == object:
-            try:
-                input_data[col] = encoders[col].transform(input_data[col])
-            except Exception as err:
-                st.error(f"Error codificando '{col}': {err}")
-                st.stop()
+        if col != "cultivo" and col in df_input.columns:
+            if df_input[col].dtype == object:
+                try:
+                    df_input[col] = encoders[col].transform(df_input[col])
+                except Exception as err:
+                    st.error(f"Error codificando '{col}': {err}")
+                    st.stop()
 
 
     # Fertilidad
