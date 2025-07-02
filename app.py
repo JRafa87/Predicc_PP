@@ -9,13 +9,32 @@ def main():
         st.set_page_config(page_title="Predicción de Fertilidad y Cultivo", layout="centered")
         st.title("🌱 Predicción de Fertilidad del Suelo y Cultivo Recomendado")
 
-        API_KEY = "f75c529787e26621bbd744dd67c056b0"  # ⬆️ Reemplaza con tu propia API Key de OpenWeatherMap
+        API_KEY = "TU_API_KEY"  # ⬆️ Reemplaza con tu propia API Key de OpenWeatherMap
 
         if "historial" not in st.session_state:
             st.session_state["historial"] = []
 
         # Cargar modelos y encoders
         modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
+
+        # Diccionario descriptivo para tipo de suelo
+        tipo_suelo_dict = {
+            "arcilloso": "3",
+            "arenoso": "1",
+            "franco": "2",
+            "volcánico": "0"
+        }
+
+        # Diccionario descriptivo para condiciones del clima
+        condiciones_clima_dict = {
+            "llovizna": 0,
+            "lluvioso": 1,
+            "nublado": 2,
+            "soleado": 3
+        }
+
+        # Diccionario de nombres de cultivos
+        cultivo_dict = {i: clase for i, clase in enumerate(encoders['cultivo'].classes_)}
 
         # Entrada de coordenadas
         st.header("📍 Ubicación")
@@ -40,7 +59,9 @@ def main():
 
         # Datos del suelo
         st.header("🌾 Datos del suelo")
-        tipo_suelo = st.selectbox("Tipo de suelo", ["0", "1", "2", "3"])
+        tipo_suelo_label = st.selectbox("Tipo de suelo", list(tipo_suelo_dict.keys()))
+        tipo_suelo = tipo_suelo_dict[tipo_suelo_label]
+
         pH = st.number_input("pH", min_value=0.0, max_value=14.0, step=0.1)
         materia_organica = st.number_input("Materia orgánica (%)", min_value=0.0, step=0.1)
         conductividad = st.number_input("Conductividad", min_value=0.0, step=0.01)
@@ -53,18 +74,13 @@ def main():
         st.header("🌤 Datos ambientales")
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
-        condiciones_clima_dict = {
-               "soleado": 3,
-               "nublado": 2,
-               "lluvioso": 1,
-                "llovizna": 0
-         }
+
         condiciones_clima_label = st.selectbox("Condiciones del clima", list(condiciones_clima_dict.keys()))
         condiciones_clima = condiciones_clima_dict[condiciones_clima_label]
+
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
         evapotranspiracion = st.number_input("Evapotranspiración (mm/día)", min_value=0.0, step=0.1)
-        
 
         if st.button("📊 Predecir"):
             input_data = pd.DataFrame([{
@@ -81,25 +97,26 @@ def main():
                 "temperatura": temperatura,
                 "condiciones_clima": condiciones_clima,
                 "mes": mes,
-                "evapotranspiracion": evapotranspiracion,
-    
+                "evapotranspiracion": evapotranspiracion
             }])
 
-            fert_pred, cult_pred = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
+            fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
+            cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido") if cult_pred_idx is not None else None
 
             st.markdown("---")
             st.subheader("🔎 Resultado")
             st.info(f"🧪 Fertilidad estimada: **{estado_fertilidad}**")
-            if cult_pred:
-                st.success(f"🌾 Cultivo recomendado: **{cult_pred}**")
+            if cultivo_predicho:
+                st.success(f"🌾 Cultivo recomendado: **{cultivo_predicho}**")
             else:
                 st.warning("⚠️ No se recomienda sembrar. Mejore las condiciones del suelo.")
 
             st.session_state.historial.append({
                 "Ubicación": st.session_state.get("ubicacion", "Manual"),
                 "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
-                "Cultivo": cult_pred if cult_pred else "No recomendado",
+                "Cultivo": cultivo_predicho if cultivo_predicho else "No recomendado",
+                "Tipo de suelo": tipo_suelo_label,
                 "Mes": mes,
                 "Temperatura": temperatura,
                 "Humedad": humedad,
