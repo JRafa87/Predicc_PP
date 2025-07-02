@@ -3,6 +3,7 @@ import pandas as pd
 from modules.loaders import load_all_models
 from modules.apis import get_weather, get_elevation
 from modules.predictors import predecir
+from modules.utilidades import cultivo as cultivo_dict
 
 def main():
     try:
@@ -94,17 +95,15 @@ def main():
 
 
                  
-            # ⚠️ Asegurarse de no transformar columnas ya codificadas
             for col in encoders:
-             if col != 'cultivo' and col in input_data.columns:
-              clases = list(encoders[col].classes_)
-             if input_data[col].iloc[0] in clases:
-              input_data[col] = encoders[col].transform(input_data[col])
-
+                if col != 'cultivo' and col in input_data.columns:
+                    if input_data[col].dtype == object:
+                        input_data[col] = encoders[col].transform(input_data[col])
 
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
             cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido") if cult_pred_idx is not None else None
+
 
             st.write("cult_pred_idx (output del modelo):", cult_pred_idx)
             st.write("Encoder cultivo classes_:", encoders["cultivo"].classes_)
