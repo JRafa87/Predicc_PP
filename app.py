@@ -3,7 +3,7 @@ import pandas as pd
 from modules.loaders import load_all_models
 from modules.apis import get_weather, get_elevation
 from modules.predictors import predecir
-from modules.utis import cultivo as cultivo_dict
+from modules.utils import cultivo as cultivo_dict
 
 def main():
     try:
