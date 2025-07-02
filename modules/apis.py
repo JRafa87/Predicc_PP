@@ -21,3 +21,17 @@ def get_weather(lat, lon, api_key):
         }
     except:
         return {"humedad": None, "temperatura": None, "condiciones_clima": None, "ubicacion": ""}
+
+# ✅ Agrega esta función al final del archivo
+def mapear_clima(descripcion):
+    descripcion = descripcion.lower()
+    if "drizzle" in descripcion or "llovizna" in descripcion:
+        return 0  # llovizna
+    elif "rain" in descripcion or "lluvia" in descripcion:
+        return 1  # lluvioso
+    elif "cloud" in descripcion or "nublado" in descripcion:
+        return 2  # nublado
+    elif "clear" in descripcion or "soleado" in descripcion:
+        return 3  # soleado
+    else:
+        return 2  # nublado como valor por defecto
