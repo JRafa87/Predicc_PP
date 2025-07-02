@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from modules.loaders import load_all_models
-from modules.apis import get_weather, get_elevation
+from modules.apis import get_weather, get_elevation, mapear_clima
 from modules.predictors import predecir
 
 def main():
