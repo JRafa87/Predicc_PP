@@ -60,9 +60,7 @@ def main():
         st.header("🌤 Datos ambientales")
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
-        cond_clima_opciones = list(encoders["condiciones_clima"].classes_)
-        cond_clima_texto = st.selectbox("Condiciones del clima", cond_clima_opciones)
-        condiciones_clima = encoders["condiciones_clima"].transform([cond_clima_texto])[0]
+        condiciones_clima = st.number_input("Condiciones del clima (número)", min_value=0, max_value=3, step=1, value=int(st.session_state.get("condiciones_clima", 0)
 
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
