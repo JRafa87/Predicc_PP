@@ -8,7 +8,7 @@ st.set_page_config(page_title="Predicción de Fertilidad y Cultivo", layout="cen
 st.title("🌱 Predicción de Fertilidad del Suelo y Cultivo Recomendado")
 
 # API Key de OpenWeatherMap
-API_KEY = "TU_API_KEY"
+API_KEY = "f75c529787e26621bbd744dd67c056b0"
 
 # Inicializar historial en sesión
 if "historial" not in st.session_state:
