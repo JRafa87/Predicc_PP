@@ -64,7 +64,7 @@ def main():
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
         evapotranspiracion = st.number_input("Evapotranspiración (mm/día)", min_value=0.0, step=0.1)
-        tipo_riego = st.selectbox("Tipo de riego", ["0", "1", "2"])
+        
 
         if st.button("📊 Predecir"):
             input_data = pd.DataFrame([{
