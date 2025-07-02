@@ -54,10 +54,10 @@ def main():
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
         condiciones_clima_dict = {
-    "soleado": 3,
-    "nublado": 2,
-    "lluvioso": 1,
-    "llovizna": 0
+               "soleado": 3,
+               "nublado": 2,
+               "lluvioso": 1,
+                "llovizna": 0
          }
         condiciones_clima_label = st.selectbox("Condiciones del clima", list(condiciones_clima_dict.keys()))
         condiciones_clima = condiciones_clima_dict[condiciones_clima_label]
