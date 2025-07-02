@@ -8,30 +8,23 @@ def get_elevation(lat, lon):
     except:
         return None
 
+from .apis import mapear_clima  # asegúrate que esté importado si está en otro archivo
+
 def get_weather(lat, lon, api_key):
     try:
         url = "https://api.openweathermap.org/data/2.5/weather"
         params = {"lat": lat, "lon": lon, "appid": api_key, "units": "metric"}
         data = requests.get(url, params=params).json()
+
+        # mapear condiciones del clima directamente aquí
+        condiciones_clima_texto = data["weather"][0]["main"]
+        condiciones_clima = mapear_clima(condiciones_clima_texto)
+
         return {
             "humedad": data["main"]["humidity"],
             "temperatura": data["main"]["temp"],
-            "condiciones_clima": data["weather"][0]["main"],
+            "condiciones_clima": condiciones_clima,
             "ubicacion": data.get("name", "")
         }
     except:
-        return {"humedad": None, "temperatura": None, "condiciones_clima": None, "ubicacion": ""}
-
-# ✅ Agrega esta función al final del archivo
-def mapear_clima(descripcion):
-    descripcion = descripcion.lower()
-    if "drizzle" in descripcion or "llovizna" in descripcion:
-        return 0  # llovizna
-    elif "rain" in descripcion or "lluvia" in descripcion:
-        return 1  # lluvioso
-    elif "cloud" in descripcion or "nublado" in descripcion:
-        return 2  # nublado
-    elif "clear" in descripcion or "soleado" in descripcion:
-        return 3  # soleado
-    else:
-        return 2  # nublado como valor por defecto
+        return {"humedad": None, "temperatura": None, "condiciones_clima": 2, "ubicacion": ""}
