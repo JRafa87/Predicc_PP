@@ -100,9 +100,12 @@ def main():
                     if input_data[col].dtype == object:
                         input_data[col] = encoders[col].transform(input_data[col])
 
+            cult_pred_idx = int(modelo_cult.predict(X_cult_scaled)[0])
+
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
-            cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido") if cult_pred_idx is not None else None
+            cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido")
+
 
 
             st.write("cult_pred_idx (output del modelo):", cult_pred_idx)
