@@ -85,6 +85,10 @@ def main():
                 "evapotranspiracion": evapotranspiracion
             }])
 
+            st.write("tipo_suelo (input):", tipo_suelo)
+            st.write("Encoder tipo_suelo classes_:", encoders['tipo_suelo'].classes_)
+
+
             st.write("condiciones_clima (input):", condiciones_clima)
             st.write("Encoder condiciones_clima classes_:", encoders['condiciones_clima'].classes_)
 
