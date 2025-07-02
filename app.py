@@ -53,7 +53,14 @@ def main():
         st.header("🌤 Datos ambientales")
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
-        condiciones_clima = st.selectbox("Condiciones del clima", ["Clear", "Clouds", "Rain", "Drizzle", "Thunderstorm", "Snow", "Mist"])
+        condiciones_clima_dict = {
+    "soleado": 3,
+    "nublado": 2,
+    "lluvioso": 1,
+    "llovizna": 0
+         }
+        condiciones_clima_label = st.selectbox("Condiciones del clima", list(condiciones_clima_dict.keys()))
+        condiciones_clima = condiciones_clima_dict[condiciones_clima_label]
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
         evapotranspiracion = st.number_input("Evapotranspiración (mm/día)", min_value=0.0, step=0.1)
@@ -75,7 +82,7 @@ def main():
                 "condiciones_clima": condiciones_clima,
                 "mes": mes,
                 "evapotranspiracion": evapotranspiracion,
-                "tipo_riego": tipo_riego
+    
             }])
 
             fert_pred, cult_pred = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
