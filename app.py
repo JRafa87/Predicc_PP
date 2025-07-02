@@ -33,7 +33,7 @@ def main():
                 st.session_state.update({
                     "humedad": clima["humedad"],
                     "temperatura": clima["temperatura"],
-                    "condiciones_clima": clima["condiciones_clima"],
+                    "condiciones_clima_texto": clima["condiciones_clima"],
                     "ubicacion": clima["ubicacion"],
                     "altitud": altitud
                 })
@@ -47,7 +47,6 @@ def main():
         tipo_suelo_texto = st.selectbox("Tipo de suelo", tipo_suelo_opciones)
         tipo_suelo = encoders["tipo_suelo"].transform([tipo_suelo_texto])[0]
 
-
         pH = st.number_input("pH", min_value=0.0, max_value=14.0, step=0.1)
         materia_organica = st.number_input("Materia orgánica (%)", min_value=0.0, step=0.1)
         conductividad = st.number_input("Conductividad", min_value=0.0, step=0.01)
@@ -60,7 +59,10 @@ def main():
         st.header("🌤 Datos ambientales")
         humedad = st.number_input("Humedad (%)", min_value=0.0, max_value=100.0, step=0.1, value=float(st.session_state.get("humedad", 0.0)))
         temperatura = st.number_input("Temperatura (°C)", value=float(st.session_state.get("temperatura", 0.0)))
-        condiciones_clima = st.number_input("Condiciones del clima (número)", min_value=0, max_value=3, step=1, value=int(st.session_state.get("condiciones_clima", 0)
+
+        condiciones_opciones = list(encoders["condiciones_clima"].classes_)
+        condiciones_clima_texto = st.selectbox("Condiciones del clima", condiciones_opciones, index=condiciones_opciones.index(st.session_state.get("condiciones_clima_texto", condiciones_opciones[0])))
+        condiciones_clima = encoders["condiciones_clima"].transform([condiciones_clima_texto])[0]
 
         altitud = st.number_input("Altitud (m)", value=float(st.session_state.get("altitud", 0.0)))
         mes = st.selectbox("Mes de siembra", list(range(1, 13)))
@@ -100,7 +102,7 @@ def main():
                 "Ubicación": st.session_state.get("ubicacion", "Manual"),
                 "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
                 "Cultivo": cultivo_predicho if cultivo_predicho else "No recomendado",
-                "Tipo de suelo": tipo_suelo,
+                "Tipo de suelo": tipo_suelo_texto,
                 "Mes": mes,
                 "Temperatura": temperatura,
                 "Humedad": humedad,
