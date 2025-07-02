@@ -24,9 +24,8 @@ def predecir(df_input, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encod
     if pred_fert == 1:
         vars_cult = ['mes', 'altitud', 'temperatura', 'condiciones_clima', 'tipo_suelo', 
                      'pH', 'humedad', 'evapotranspiracion']
-        X_cult = scaler_cult.transform(df_input[vars_cult])
-        pred_cult_code = modelo_cult.predict(X_cult)[0]
-        pred_cult = encoders['cultivo'].inverse_transform([pred_cult_code])[0]
+        X_cult_scaled = scaler_cult.transform(X_cult)
+        cult_pred_idx = int(modelo_cult.predict(X_cult_scaled)[0])
     else:
         pred_cult = None
 
