@@ -15,7 +15,10 @@ def guardar(data_dict):
     data_dict["prediccion"] = True
     try:
         response = supabase.table("registros_pp").insert(data_dict).execute()
+        print("🟢 Supabase response:", response)
+        st.write("🟢 Supabase response:", response)
         return response
     except Exception as e:
         print(f"❌ Error al insertar en Supabase: {e}")
+        st.error(f"❌ Error al insertar en Supabase: {e}")
         return None
