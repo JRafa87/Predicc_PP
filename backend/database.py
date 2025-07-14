@@ -1,6 +1,7 @@
 from supabase import create_client
 import os
 from datetime import datetime
+import streamlit as st
 
 # Conexión a Supabase usando st.secrets o variables de entorno
 SUPABASE_URL = st.secrets["supabase"]["url"]
