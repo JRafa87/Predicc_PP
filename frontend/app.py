@@ -116,7 +116,7 @@ def main():
                 st.warning("⚠️ No se recomienda sembrar. Mejore las condiciones del suelo.")
 
             registro = {
-                "tipo_suelo": tipo_suelo,
+                "tipo_suelo": tipo_suelo_texto,
                 "pH": round(pH, 2),
                 "materia_organica": round(materia_organica, 2),
                 "conductividad": round(conductividad, 2),
@@ -127,7 +127,7 @@ def main():
                 "densidad": round(densidad, 2),
                 "altitud": round(altitud, 2),
                 "temperatura": round(temperatura, 2),
-                "condiciones_clima": condiciones_clima,
+                "condiciones_clima": condiciones_clima_texto,
                 "mes": mes,
                 "evapotranspiracion": round(evapotranspiracion, 2),
                 "fertilidad": int(fert_pred),
