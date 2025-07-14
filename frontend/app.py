@@ -128,31 +128,31 @@ def main():
             else:
                 st.warning("⚠️ No se recomienda sembrar. Mejore las condiciones del suelo.")
 
-            """st.session_state.historial.append({
-                "Ubicación": st.session_state.get("ubicacion", "Manual"),
-                "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
-                "Cultivo": cultivo_predicho if cultivo_predicho else "No recomendado",
-                "Tipo de suelo": tipo_suelo_texto,
-                "Mes": mes,
-                "Temperatura": temperatura,
-                "Humedad": humedad,
-                "Altitud": altitud
-            })"""
+            #st.session_state.historial.append({
+              #  "Ubicación": st.session_state.get("ubicacion", "Manual"),
+               # "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
+               # "Cultivo": cultivo_predicho if cultivo_predicho else "No recomendado",
+               # "Tipo de suelo": tipo_suelo_texto,
+               # "Mes": mes,
+               # "Temperatura": temperatura,
+               # "Humedad": humedad,
+               # "Altitud": altitud
+            #})
 
 
-        """if st.session_state.historial:
-            st.markdown("---")
-            st.subheader("📋 Historial de predicciones")
-            df_historial = pd.DataFrame(st.session_state.historial)
-            st.dataframe(df_historial)""
+        #if st.session_state.historial:
+            #st.markdown("---")
+            #st.subheader("📋 Historial de predicciones")
+            #df_historial = pd.DataFrame(st.session_state.historial)
+            #st.dataframe(df_historial)""
 
-            ""csv = df_historial.to_csv(index=False).encode("utf-8")
-            st.download_button(
-                label="📅 Descargar historial en CSV",
-                data=csv,
-                file_name="historial_predicciones.csv",
-                mime="text/csv"
-            )"""
+            #csv = df_historial.to_csv(index=False).encode("utf-8")
+            #st.download_button(
+                #label="📅 Descargar historial en CSV",
+               # data=csv,
+                #file_name="historial_predicciones.csv",
+                #mime="text/csv"
+            #)
         
         # Diccionario que representa una fila
         registro = {
