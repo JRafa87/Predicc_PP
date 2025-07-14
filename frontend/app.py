@@ -41,7 +41,9 @@ def main():
                     "humedad": clima["humedad"],
                     "temperatura": clima["temperatura"],
                     "ubicacion": clima["ubicacion"],
-                    "altitud": altitud
+                    "altitud": altitud,
+                    "lat":lat,
+                    "lon":lon
                 })
                 st.success(f"✅ Datos obtenidos para {clima['ubicacion']}")
             else:
