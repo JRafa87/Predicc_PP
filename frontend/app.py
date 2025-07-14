@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
-from modules.loaders import load_all_models
-from modules.apis import get_weather, get_elevation
-from modules.predictors import predecir
-from modules.utils import cultivos as cultivo_dict
+from backend.loaders import load_all_models
+from backend.apis import get_weather, get_elevation
+from backend.predictors import predecir
+from backend.utils import cultivos as cultivo_dict
 
 def main():
     try:
