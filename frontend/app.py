@@ -93,6 +93,7 @@ def main():
                 "condiciones_clima": condiciones_clima,
                 "mes": mes,
                 "evapotranspiracion": evapotranspiracion
+
             }])
 
             st.write("tipo_suelo (input):", tipo_suelo)
@@ -127,7 +128,33 @@ def main():
                 st.success(f"🌾 Cultivo recomendado: **{cultivo_predicho}**")
             else:
                 st.warning("⚠️ No se recomienda sembrar. Mejore las condiciones del suelo.")
+          
+        
 
+        registro = {
+        "tipo_suelo": tipo_suelo,
+        "pH": round(pH, 2),
+        "materia_organica": round(materia_organica, 2),
+        "conductividad": round(conductividad, 2),
+        "nitrogeno": round(nitrogeno, 2),
+        "fosforo": round(fosforo, 2),
+        "potasio": round(potasio, 2),
+        "humedad": round(humedad, 2),
+        "densidad": round(densidad, 2),
+        "altitud": round(altitud, 2),
+        "temperatura": round(temperatura, 2),
+        "condiciones_clima": condiciones_clima,
+        "mes": mes,
+        "evapotranspiracion": round(evapotranspiracion, 2),
+        "fertilidad": int(fert_pred),
+        "cultivo": cultivo_predicho,
+        "lugar": st.session_state.get("ubicacion", None),
+        "latitud": st.session_state.get("lat", None),
+        "longitud": st.session_state.get("lon", None)
+        }
+
+        guardar(registro)
+        
             #st.session_state.historial.append({
               #  "Ubicación": st.session_state.get("ubicacion", "Manual"),
                # "Fertilidad": "FÉRTIL" if fert_pred == 1 else "INFÉRTIL",
@@ -155,29 +182,7 @@ def main():
             #)
         
         # Diccionario que representa una fila
-        registro = {
-            "tipo_suelo": tipo_suelo,
-            "pH": round(pH, 2),
-            "materia_organica": round(materia_organica, 2),
-            "conductividad": round(conductividad, 2),
-            "nitrogeno": round(nitrogeno, 2),
-            "fosforo": round(fosforo, 2),
-            "potasio": round(potasio, 2),
-            "humedad": round(humedad, 2),
-            "densidad": round(densidad, 2),
-            "altitud": round(altitud, 2),
-            "temperatura": round(temperatura, 2),
-            "condiciones_clima": condiciones_clima,
-            "mes": mes,
-            "evapotranspiracion": round(evapotranspiracion, 2),
-            "fertilidad": int(fert_pred),
-            "cultivo": cultivo_predicho,
-            "lugar": st.session_state.get("ubicacion", None),
-            "latitud": st.session_state.get("lat", None),
-            "longitud": st.session_state.get("lon", None)
-        }
 
-        guardar(registro)
 
     except Exception as e:
         st.error(f"❌ Error en la app: {e}")
