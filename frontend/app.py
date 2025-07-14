@@ -4,6 +4,10 @@ from backend.loaders import load_all_models
 from backend.apis import get_weather, get_elevation
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 
 def main():
     try:
