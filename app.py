@@ -10,7 +10,7 @@ def main():
         st.set_page_config(page_title="Predicción de Fertilidad y Cultivo", layout="centered")
         st.title("🌱 Predicción de Fertilidad del Suelo y Cultivo Recomendado")
 
-        API_KEY = t.secrets["api"]["openweather_key"]  # ⬆️ Reemplaza con tu propia API Key de OpenWeatherMap
+        API_KEY = st.secrets["api"]["openweather_key"]  # ⬆️ Reemplaza con tu propia API Key de OpenWeatherMap
 
         if "historial" not in st.session_state:
             st.session_state["historial"] = []
