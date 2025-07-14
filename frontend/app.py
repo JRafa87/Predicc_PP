@@ -101,6 +101,11 @@ def main():
             fert_pred, cult_pred_idx = predecir(input_data, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             estado_fertilidad = "FÉRTIL ✅" if fert_pred == 1 else "INFÉRTIL ❌"
             cultivo_predicho = cultivo_dict.get(cult_pred_idx, "Desconocido")
+            
+            # 👇 INSERTA AQUÍ LOS st.write PARA DEPURAR
+            st.write("🧠 Índice predicho por el modelo de cultivo:", cult_pred_idx)
+            st.write("📚 Diccionario de cultivos (cultivo_dict):", cultivo_dict)
+            st.write("🔍 Cultivo predicho:", cultivo_predicho)
 
             st.markdown("---")
             st.subheader("🔎 Resultado")
