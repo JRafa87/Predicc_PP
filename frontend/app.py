@@ -137,8 +137,8 @@ def main():
                 "longitud": st.session_state.get("lon", None)
             }
 
-            st.write("📝 Registrando en Supabase:", registro)
-            guardar(registro)
+            #st.write("📝 Registrando en Supabase:", registro)
+            #guardar(registro)
 
     except Exception as e:
         st.error(f"❌ Error en la app: {e}")
