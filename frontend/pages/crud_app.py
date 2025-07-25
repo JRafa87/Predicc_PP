@@ -37,10 +37,10 @@ if df.empty:
 df_mostrar = df.copy()
 df_mostrar["editable"] = df_mostrar["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
 
-# Mostrar dataframe con filas grises para registros manuales
+# Mostrar dataframe con filas grises para registros predichos (no manuales)
 def colorear_filas(row):
     estilo = [''] * len(row)
-    if not row["prediccion"]:
+    if row["prediccion"]:
         estilo = ['color: gray'] * len(row)
     return estilo
 
@@ -68,11 +68,11 @@ seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opcion
 if seleccion:
     id_sel = int(seleccion.split(" | ")[0])
     registro_sel = df[df["id"] == id_sel].iloc[0]
-    editable = registro_sel["prediccion"]
+    editable = True  # Solo los registros predichos pueden ser actualizados
 
-    st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if editable else '✍️ Ingreso manual'}")
+    st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
-    with st.expander("✏️ Editar registro", expanded=bool(editable)):
+    with st.expander("✏️ Editar registro", expanded=True):
         def input_field(label, key, value, enabled=True, **kwargs):
             return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
 
@@ -97,10 +97,10 @@ if seleccion:
                 campo.replace("_", " ").capitalize(),
                 key=f"{campo}_{id_sel}",
                 value=val,
-                enabled=editable
+                enabled=registro_sel["prediccion"]
             )
 
-        if editable and st.button("🔁 Actualizar registro"):
+        if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
             cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
             if not cambios:
                 st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
