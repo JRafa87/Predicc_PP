@@ -72,7 +72,7 @@ if seleccion:
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if editable else '✍️ Ingreso manual'}")
 
-    with st.expander("✏️ Editar registro", expanded=editable):
+    with st.expander("✏️ Editar registro", expanded=bool(editable)):
         def input_field(label, key, value, enabled=True, **kwargs):
             return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
 
