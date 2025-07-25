@@ -7,8 +7,6 @@ from backend.utils import cultivos as cultivo_dict
 from datetime import datetime
 import pytz
 
-# No usar st.set_page_config() aquí
-
 st.title("🗃️ Gestión de Registros - Predicciones Fertilidad y Cultivo")
 
 # Mostrar predicción pendiente
@@ -35,11 +33,36 @@ if df.empty:
     st.info("No hay registros aún.")
     st.stop()
 
+# Añadir columna visual para mostrar si es editable
 df_mostrar = df.copy()
-df_mostrar["editable"] = df["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
-st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
+df_mostrar["editable"] = df_mostrar["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
 
-opciones = df["id"].astype(str) + " | " + df["lugar"].fillna("Sin lugar") + " | " + df["cultivo"]
+# Mostrar dataframe con filas grises para registros manuales
+def colorear_filas(row):
+    estilo = [''] * len(row)
+    if not row["prediccion"]:
+        estilo = ['color: gray'] * len(row)
+    return estilo
+
+try:
+    st.dataframe(
+        df_mostrar.drop(columns=["prediccion"]).style.apply(colorear_filas, axis=1),
+        use_container_width=True
+    )
+except Exception:
+    st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
+
+# Construir opciones del selectbox
+opciones = (
+    df["id"].astype(str)
+    + " | "
+    + df["lugar"].fillna("Sin lugar")
+    + " | "
+    + df["cultivo"]
+    + " | "
+    + df["prediccion"].apply(lambda x: "🧠 Predicción" if x else "✍️ Manual")
+)
+
 seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opciones)
 
 if seleccion:
@@ -70,7 +93,12 @@ if seleccion:
 
         nuevos_valores = {}
         for campo, val in campos.items():
-            nuevos_valores[campo] = input_field(campo.replace("_", " ").capitalize(), key=campo, value=val, enabled=editable)
+            nuevos_valores[campo] = input_field(
+                campo.replace("_", " ").capitalize(),
+                key=f"{campo}_{id_sel}",
+                value=val,
+                enabled=editable
+            )
 
         if editable and st.button("🔁 Actualizar registro"):
             cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
@@ -108,4 +136,5 @@ if seleccion:
             eliminar_registro(id_sel)
             st.warning("Registro eliminado.")
             st.rerun()
+
 
