@@ -36,8 +36,8 @@ if df.empty:
     st.stop()
 
 df_mostrar = df.copy()
-df_mostrar["editable"] = df["es_prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
-st.dataframe(df_mostrar.drop(columns=["es_prediccion"]), use_container_width=True)
+df_mostrar["editable"] = df["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
+st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
 
 opciones = df["id"].astype(str) + " | " + df["lugar"].fillna("Sin lugar") + " | " + df["cultivo"]
 seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opciones)
@@ -45,7 +45,7 @@ seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opcion
 if seleccion:
     id_sel = int(seleccion.split(" | ")[0])
     registro_sel = df[df["id"] == id_sel].iloc[0]
-    editable = registro_sel["es_prediccion"]
+    editable = registro_sel["prediccion"]
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if editable else '✍️ Ingreso manual'}")
 
