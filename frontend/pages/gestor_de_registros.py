@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
-from backend.database import obtener_registros, insertar_registro, eliminar_registro, actualizar_registro
+from backend.database import obtener_registros, insertar_registro, eliminar_registro, actualizar_registro, guardar
 from backend.models import cargar_modelos, predecir
 from backend.loaders import load_all_models
 from backend.predictors import predecir
