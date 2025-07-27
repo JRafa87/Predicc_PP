@@ -21,6 +21,7 @@ if registros.empty:
     st.stop()
 
 df = pd.DataFrame(registros)
+df = df.sort_values(by="id", ascending=True)
 
 # Mostrar tabla
 with st.expander("📑 Ver todos los registros", expanded=True):
