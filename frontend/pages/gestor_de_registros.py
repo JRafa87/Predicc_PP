@@ -4,20 +4,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime
-import pytz
 from backend.database import obtener_registros, eliminar_registro, actualizar_registro, guardar
-#from models import cargar_modelos
 from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
+from datetime import datetime
+import pytz
 
-
-st.title("Gestión de registros de predicción")
-
-# Cargar modelos
-modelo_fertilidad, modelo_cultivo, _, _, _ = load_all_models()
-
+st.title("🗃️ Gestión de Registros - Predicciones Fertilidad y Cultivo")
 
 # Mostrar predicción pendiente
 if "registro_predicho" in st.session_state:
@@ -26,7 +20,7 @@ if "registro_predicho" in st.session_state:
 
     col_guardar, col_descartar = st.columns(2)
     if col_guardar.button("💾 Guardar predicción"):
-        insertar_registro(st.session_state["registro_predicho"])
+        guardar(st.session_state["registro_predicho"])
         st.success("📥 Predicción guardada correctamente.")
         del st.session_state["registro_predicho"]
         st.rerun()
@@ -36,85 +30,155 @@ if "registro_predicho" in st.session_state:
         st.info("Predicción descartada.")
         st.rerun()
 
-# Obtener datos de Supabase
-registros = obtener_registros()
+# Obtener registros
+st.markdown("### 📄 Registros actuales en Supabase")
+df = obtener_registros()
+df = df.sort_values(by="id", ascending=True).reset_index(drop=True)
 
-def mostrar_registro(fila):
-    with st.expander(f"📄 Registro ID {fila['id']}"):
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            for campo, valor in fila.items():
-                if campo != "id":
-                    st.write(f"**{campo}**: {valor}")
-        with col2:
-            if st.button("✏️ Editar", key=f"editar_{fila['id']}"):
-                st.session_state[f"editando_{fila['id']}"] = True
-            if st.button("🗑️ Eliminar", key=f"eliminar_{fila['id']}"):
-                with st.expander("🗑️ Eliminar registro"):
-                    st.warning("⚠️ ¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.")
-                    if st.button("❌ Confirmar eliminación", key=f"confirmar_eliminar_{fila['id']}"):
-                        eliminar_registro(fila['id'])
-                        st.warning(f"Registro ID {fila['id']} eliminado")
-                        st.rerun()
+if df.empty:
+    st.info("No hay registros aún.")
+    st.stop()
 
-# Mostrar todos los registros
-st.markdown("## 📋 Registros actuales")
-for fila in registros:
-    if st.session_state.get(f"editando_{fila['id']}", False):
-        with st.form(f"form_edicion_{fila['id']}"):
-            columnas = st.columns(3)
-            campos_numericos = [
-                "ph", "materia_organica", "conductividad", "nitrogeno", "fosforo", "potasio", "humedad",
-                "densidad", "altitud", "temperatura","evapotranspiracion", "mes"
-            ]
-            campos_categoricos = ["tipo_suelo", "condiciones_clima"]
+# Añadir columna visual
+df_mostrar = df.copy()
+df_mostrar["editable"] = df_mostrar["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
 
-            datos_actualizados = {}
-            for i, campo in enumerate(campos_numericos + campos_categoricos):
-                with columnas[i % 3]:
-                    valor_actual = fila.get(campo, "")
-                    if campo in campos_numericos:
-                        datos_actualizados[campo] = st.number_input(
-                            campo.replace("_", " ").capitalize(), value=float(valor_actual) if valor_actual != "" else 0.0,
-                            format="%.4f", key=f"{campo}_{fila['id']}"
-                        )
-                    else:
-                        datos_actualizados[campo] = st.text_input(
-                            campo.replace("_", " ").capitalize(), value=valor_actual,
-                            key=f"{campo}_{fila['id']}"
-                        )
+def colorear_filas(row):
+    estilo = [''] * len(row)
+    if not row["prediccion"]:
+        estilo = ['color: gray'] * len(row)
+    return estilo
 
-            submitted = st.form_submit_button("💾 Guardar cambios")
-            if submitted:
-                # Volver a predecir con nuevos valores
-                nueva_fertilidad = predecir(modelo_fertilidad, datos_actualizados)
-                nuevo_cultivo = predecir(modelo_cultivo, datos_actualizados)
+try:
+    st.dataframe(
+        df_mostrar.drop(columns=["prediccion"]).style.apply(colorear_filas, axis=1),
+        use_container_width=True
+    )
+except Exception:
+    st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
 
-                # Comparar con los valores antiguos
-                cambios = []
-                if nueva_fertilidad != fila.get("fertilidad"):
-                    cambios.append(f"Fertilidad: {fila.get('fertilidad')} → {nueva_fertilidad}")
-                if nuevo_cultivo != fila.get("cultivo"):
-                    cambios.append(f"Cultivo: {fila.get('cultivo')} → {nuevo_cultivo}")
+# Selector de registro
+opciones = (
+    df["id"].astype(str)
+    + " | "
+    + df["lugar"].fillna("Sin lugar")
+    + " | "
+    + df["cultivo"].fillna("Sin cultivo")
+    + " | "
+    + df["prediccion"].apply(lambda x: "🧠 Predicción" if x else "✍️ Manual")
+)
 
-                if cambios:
-                    st.warning("Se detectaron cambios en la predicción:")
-                    for cambio in cambios:
-                        st.write(f"- {cambio}")
-                    if st.checkbox("✅ Confirmar actualización del registro", key=f"confirmar_{fila['id']}"):
-                        datos_actualizados["fertilidad"] = nueva_fertilidad
-                        datos_actualizados["cultivo"] = nuevo_cultivo
-                        datos_actualizados["prediccion"] = True
-                        datos_actualizados["fecha_ingreso"] = datetime.now(pytz.timezone("America/Lima")).isoformat()
-                        actualizar_registro(fila['id'], datos_actualizados)
+seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opciones)
+
+if seleccion:
+    id_sel = int(seleccion.split(" | ")[0])
+    registro_sel = df[df["id"] == id_sel].iloc[0]
+
+    st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
+
+    editable = registro_sel["prediccion"]
+    if editable:
+        modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
+
+    with st.expander("✏️ Editar registro", expanded=True):
+
+        def input_field(label, key, value, enabled=True):
+            if isinstance(value, (int, float)):
+                return st.number_input(label, key=key, value=float(value), disabled=not enabled)
+            elif isinstance(value, bool):
+                return st.checkbox(label, key=key, value=value, disabled=not enabled)
+            else:
+                return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
+
+        campos = {
+            "tipo_suelo": "categorico",
+            "pH": "numerico",
+            "materia_organica": "numerico",
+            "conductividad": "numerico",
+            "nitrogeno": "numerico",
+            "fosforo": "numerico",
+            "potasio": "numerico",
+            "humedad": "numerico",
+            "densidad": "numerico",
+            "condiciones_clima": "categorico",
+            "altitud": "numerico",
+            "temperatura": "numerico",
+            "evapotranspiracion": "numerico",
+            "mes": "numerico"
+        }
+
+        nuevos_valores = {}
+        for campo, tipo in campos.items():
+            etiqueta = campo.replace("_", " ").capitalize()
+            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_{id_sel}", value=registro_sel[campo], enabled=editable)
+
+        if editable and st.button("🔁 Actualizar registro"):
+            hay_cambios = False
+            for campo in campos:
+                original = registro_sel[campo]
+                nuevo = nuevos_valores[campo]
+                if campos[campo] == "numerico":
+                    if round(float(original), 2) != round(float(nuevo), 2):
+                        hay_cambios = True
+                        break
+                else:
+                    if str(original).strip() != str(nuevo).strip():
+                        hay_cambios = True
+                        break
+
+            if not hay_cambios:
+                st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
+            else:
+                tipo_suelo_cod = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
+                clima_cod = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
+
+                input_df = pd.DataFrame([{
+                    **nuevos_valores,
+                    "tipo_suelo": tipo_suelo_cod,
+                    "condiciones_clima": clima_cod
+                }])
+
+                fert_nueva, cultivo_idx_nuevo = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
+                cultivo_nuevo = cultivo_dict.get(cultivo_idx_nuevo, "Desconocido")
+
+                # Mostrar diferencias
+                diferencias = []
+                if int(fert_nueva) != int(registro_sel["fertilidad"]):
+                    diferencias.append(f"Fertilidad: {registro_sel['fertilidad']} → {int(fert_nueva)}")
+                if cultivo_nuevo != registro_sel["cultivo"]:
+                    diferencias.append(f"Cultivo: {registro_sel['cultivo']} → {cultivo_nuevo}")
+
+                if diferencias:
+                    st.warning("🔍 Cambios detectados en la predicción:")
+                    for diff in diferencias:
+                        st.markdown(f"- {diff}")
+
+                    if st.checkbox("✅ Confirmar actualización del registro"):
+                        fecha_actual = datetime.now(pytz.timezone("America/Lima")).strftime("%Y-%m-%d %H:%M:%S")
+
+                        datos_actualizados = {
+                            **nuevos_valores,
+                            "fertilidad": int(fert_nueva),
+                            "cultivo": cultivo_nuevo,
+                            "fecha": fecha_actual,
+                            "lugar": registro_sel.get("lugar"),
+                            "latitud": registro_sel.get("latitud"),
+                            "longitud": registro_sel.get("longitud"),
+                            "prediccion": True
+                        }
+
+                        actualizar_registro(id_sel, datos_actualizados)
                         st.success("✅ Registro actualizado correctamente.")
-                        del st.session_state[f"editando_{fila['id']}"]
                         st.rerun()
                 else:
-                    st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
-                    del st.session_state[f"editando_{fila['id']}"]
-    else:
-        mostrar_registro(fila)
+                    st.info("ℹ️ No hay cambios en la predicción. El registro no fue actualizado.")
+
+    with st.expander("🗑️ Eliminar registro"):
+        if st.button("❌ Confirmar eliminación"):
+            eliminar_registro(id_sel)
+            st.warning("Registro eliminado.")
+            st.rerun()
+
 
 
 
