@@ -112,7 +112,7 @@ if seleccion:
             "evapotranspiracion": (registro_sel["evapotranspiracion"], "numerico"),
             "mes": (registro_sel["mes"], "numerico")
         }
-
+     for i, fila in df.iterrows():
         nuevos_valores = {}
         for campo, valor in fila.items():
             editable = campo in campos_editables
