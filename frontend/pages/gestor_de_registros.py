@@ -28,13 +28,10 @@ with st.expander("📑 Ver todos los registros", expanded=True):
 
 # Selección de registro por ID
 st.subheader("🔍 Seleccionar un registro para editar o eliminar")
-
-# Crear lista de selección: mostrar id y lugar (o lat,lon si no hay lugar)
 opciones = [
     f"{row['id']} | {row.get('lugar') or f'{row.get('latitud', 0):.3f},{row.get('longitud', 0):.3f}'}"
     for _, row in df.iterrows()
 ]
-
 seleccion = st.selectbox("Selecciona un registro:", opciones)
 id_sel = int(seleccion.split(" | ")[0])
 registro_sel = df[df["id"] == id_sel].iloc[0]
@@ -43,18 +40,28 @@ registro_sel = df[df["id"] == id_sel].iloc[0]
 with st.expander("📌 Datos actuales del registro"):
     st.write(registro_sel)
 
-#encoders = load_all_models()
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
-    # Función auxiliar para campos de entrada
-    def input_field(key, valor_actual, tipo="numerico", opciones=None, enabled=True, encoders=None):
-        ...
-        if tipo == "categorico" and opciones is None:
-             opciones = list(encoders[key].classes_)
+
+    # Función auxiliar para generar campos de entrada
+    def input_field(label, valor_actual, tipo="numerico", opciones=None, key=None, enabled=True):
+        if not enabled:
+            st.text_input(label, value=str(valor_actual), disabled=True, key=key)
+            return valor_actual
+
+        if tipo == "numerico":
+            return st.number_input(label, value=float(valor_actual), key=key)
+        elif tipo == "categorico":
+            return st.selectbox(label, opciones, index=opciones.index(valor_actual), key=key)
+        else:
+            return st.text_input(label, value=str(valor_actual), key=key)
+
+    # Cargar modelos y encoders una sola vez
+    modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
     # Campos a editar
     campos = {
-        "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
+        "tipo_suelo": (registro_sel["tipo_suelo"], "categorico", list(encoders["tipo_suelo"].classes_)),
         "pH": (registro_sel["pH"], "numerico"),
         "materia_organica": (registro_sel["materia_organica"], "numerico"),
         "conductividad": (registro_sel["conductividad"], "numerico"),
@@ -63,35 +70,40 @@ with st.expander("✏️ Editar registro", expanded=True):
         "potasio": (registro_sel["potasio"], "numerico"),
         "humedad": (registro_sel["humedad"], "numerico"),
         "densidad": (registro_sel["densidad"], "numerico"),
-        "condiciones_clima": (registro_sel["condiciones_clima"], "categorico"),
+        "condiciones_clima": (registro_sel["condiciones_clima"], "categorico", list(encoders["condiciones_clima"].classes_)),
         "altitud": (registro_sel["altitud"], "numerico"),
         "temperatura": (registro_sel["temperatura"], "numerico"),
         "evapotranspiracion": (registro_sel["evapotranspiracion"], "numerico"),
         "mes": (registro_sel["mes"], "numerico"),
-        "lugar": (registro_sel.get("lugar", ""), "categorico"),
+        "lugar": (registro_sel.get("lugar", ""), "text"),
         "latitud": (registro_sel.get("latitud", 0.0), "numerico"),
         "longitud": (registro_sel.get("longitud", 0.0), "numerico")
     }
 
-    # Guardar nuevos valores
     nuevos_valores = {}
-    for campo, valor in registro_sel.items():
-        if campo in ["id", "fecha", "fertilidad", "cultivo", "prediccion"]:
-        continue  # campos que no se editan
+    for campo, datos in campos.items():
+        valor_actual = datos[0]
+        tipo = datos[1]
+        opciones = datos[2] if len(datos) > 2 else None
         nuevos_valores[campo] = input_field(
-        campo.replace("_", " ").capitalize(),
-        valor,
-        key=campo,
-        enabled=registro_sel["prediccion"]
-    )
+            campo.replace("_", " ").capitalize(),
+            valor_actual,
+            tipo=tipo,
+            opciones=opciones,
+            key=campo,
+            enabled=registro_sel["prediccion"]
+        )
 
     # Botón de actualización
     if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
-        cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
+        cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2)
+                      if isinstance(nuevos_valores[k], (int, float)) else nuevos_valores[k] != registro_sel[k]
+                      for k in nuevos_valores)
+
         if not cambios:
             st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
         else:
-            modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
+            # Codificar variables categóricas
             tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
             condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
