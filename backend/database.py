@@ -54,14 +54,15 @@ def actualizar_registro(id_registro, nuevos_datos):
             .execute()
         )
 
+        st.write("📡 Respuesta de Supabase:", response)
+
         if response.get("status_code", 200) >= 400:
             st.error(f"❌ Error Supabase: {response.get('error')}")
         elif not response.get("data"):
             st.warning("⚠️ Supabase no devolvió datos. Es posible que no se haya actualizado ningún registro.")
         else:
             st.success(f"✏️ Registro con ID {id_registro} actualizado correctamente.")
-            st.write("🔎 Resultado Supabase:", response)
-
     except Exception as e:
         st.error(f"❌ Error al actualizar registro: {e}")
+
 
