@@ -16,7 +16,7 @@ from backend.utils import cultivos as cultivo_dict
 st.title("Gestión de registros de predicción")
 
 # Cargar modelos
-modelo_fertilidad, modelo_cultivo = cargar_modelos()
+modelo_fertilidad, modelo_cultivo = load_all_models()
 
 # Mostrar predicción pendiente
 if "registro_predicho" in st.session_state:
