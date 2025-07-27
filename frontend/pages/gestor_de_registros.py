@@ -82,7 +82,7 @@ if seleccion:
     if editable:
         _, _, _, _, encoders = load_all_models()
 
-    with st.expander("✏️ Editar registro", expanded=True):
+        with st.expander("✏️ Editar registro", expanded=True):
 
         def input_field(label, key, value, enabled=True):
             if isinstance(value, (int, float)):
@@ -90,11 +90,9 @@ if seleccion:
             elif isinstance(value, bool):
                 return st.checkbox(label, key=key, value=value, disabled=not enabled)
             elif isinstance(value, pd.Timestamp) or "fecha" in label.lower():
-                return st.date_input(label, key=key, value=value if value else datetime.date.today(), disabled=not enabled)
+                return st.date_input(label, key=key, value=value if value else datetime.today(), disabled=not enabled)
             else:
                 return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
-
-
 
         campos = {
             "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
@@ -112,13 +110,11 @@ if seleccion:
             "evapotranspiracion": (registro_sel["evapotranspiracion"], "numerico"),
             "mes": (registro_sel["mes"], "numerico")
         }
-     for i, fila in df.iterrows():
-        nuevos_valores = {}
-        for campo, valor in fila.items():
-            editable = campo in campos_editables
-            etiqueta = str(campo).replace("_", " ").capitalize()
-            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_{i}", value=valor, enabled=editable)
 
+        nuevos_valores = {}
+        for campo, (valor, tipo) in campos.items():
+            etiqueta = str(campo).replace("_", " ").capitalize()
+            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_editar", value=valor)
 
         if editable and st.button("🔁 Actualizar registro"):
             cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
@@ -146,11 +142,13 @@ if seleccion:
                     **nuevos_valores,
                     "fertilidad": int(fert_pred),
                     "cultivo": cultivo_pred,
-                    "fecha": fecha_actual
+                    "fecha": fecha_actual,
+                    "prediccion": True
                 })
 
                 st.success("✅ Registro actualizado correctamente.")
                 st.rerun()
+
 
     with st.expander("🗑️ Eliminar registro"):
         if st.button("❌ Confirmar eliminación"):
