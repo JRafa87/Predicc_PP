@@ -84,12 +84,14 @@ if seleccion:
 
     with st.expander("✏️ Editar registro", expanded=True):
 
-        def input_field(label, key, value, tipo, enabled=True, **kwargs):
-            if tipo == "categorico" and editable:
-                opciones = list(encoders[key].classes_)
-                return st.selectbox(label, opciones, index=opciones.index(value), disabled=not enabled, key=key)
+        def input_field(label, key, value, enabled=True, **kwargs):
+            if pd.isna(value):
+                 value = "" if not enabled else 0.0
+            if enabled:
+                return st.number_input(label, key=key, value=float(value), disabled=False, **kwargs)
             else:
-                return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
+                return st.text_input(label, key=key, value=str(value), disabled=True)
+
 
         campos = {
             "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
