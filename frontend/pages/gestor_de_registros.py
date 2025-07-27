@@ -34,7 +34,6 @@ st.markdown("### 📄 Registros actuales en Supabase")
 df = obtener_registros()
 df = df.sort_values(by="id", ascending=True).reset_index(drop=True)
 
-
 if df.empty:
     st.info("No hay registros aún.")
     st.stop()
@@ -74,17 +73,23 @@ seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opcion
 if seleccion:
     id_sel = int(seleccion.split(" | ")[0])
     registro_sel = df[df["id"] == id_sel].iloc[0]
-    editable = True  # Solo los registros predichos pueden ser actualizados
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
+    editable = registro_sel["prediccion"]
+
+    # Cargar encoders si es editable (para los campos categóricos)
+    if editable:
+        _, _, _, _, encoders = load_all_models()
+
     with st.expander("✏️ Editar registro", expanded=True):
+
         def input_field(label, key, value, tipo, enabled=True, **kwargs):
-    if tipo == "categorico":
-        opciones = list(encoders[key].classes_)
-        return st.selectbox(label, opciones, index=opciones.index(value), disabled=not enabled, key=key)
-    else:
-        return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
+            if tipo == "categorico" and editable:
+                opciones = list(encoders[key].classes_)
+                return st.selectbox(label, opciones, index=opciones.index(value), disabled=not enabled, key=key)
+            else:
+                return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
 
         campos = {
             "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
@@ -104,23 +109,24 @@ if seleccion:
         }
 
         nuevos_valores = {}
-        for campo, val in campos.items():
+        for campo, (valor, tipo) in campos.items():
             nuevos_valores[campo] = input_field(
                 campo.replace("_", " ").capitalize(),
                 key=f"{campo}_{id_sel}",
-                value=val,
+                value=valor,
                 tipo=tipo,
-                enabled=registro_sel["prediccion"]
+                enabled=editable
             )
 
-        if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
+        if editable and st.button("🔁 Actualizar registro"):
             cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
             if not cambios:
                 st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
             else:
                 modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
-                tipo_suelo = encoders["tipo_suelo"].transform([registro_sel["tipo_suelo"]])[0]
-                condiciones_clima = encoders["condiciones_clima"].transform([registro_sel["condiciones_clima"]])[0]
+
+                tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
+                condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
                 input_df = pd.DataFrame([{
                     **nuevos_valores,
@@ -149,5 +155,6 @@ if seleccion:
             eliminar_registro(id_sel)
             st.warning("Registro eliminado.")
             st.rerun()
+
 
 
