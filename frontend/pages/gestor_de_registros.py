@@ -66,7 +66,7 @@ opciones = (
     + df["cultivo"]
     + " | "
     + df["prediccion"].apply(lambda x: "🧠 Predicción" if x else "✍️ Manual")
-)
+).tolist()
 
 if len(opciones) == 0:
     st.warning("⚠️ No hay registros disponibles para seleccionar.")
