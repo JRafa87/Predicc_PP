@@ -58,10 +58,8 @@ except Exception:
     st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
 
 # Selector de registro
-# Lista de opciones a mostrar
 opciones = list(df.iterrows())
 
-# Selector con formato legible
 seleccion = st.selectbox(
     "Selecciona un registro para editar o eliminar",
     opciones,
@@ -69,7 +67,7 @@ seleccion = st.selectbox(
 )
 
 # Acceder al registro seleccionado
-    if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 2:
+if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 2:
     idx_sel, registro_sel = seleccion
     id_sel = int(registro_sel["id"])
 
@@ -77,7 +75,6 @@ seleccion = st.selectbox(
 
     editable = registro_sel["prediccion"]
     if pd.notna(editable) and bool(editable):
-
         modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
     with st.expander("✏️ Editar registro", expanded=True):
@@ -89,7 +86,6 @@ seleccion = st.selectbox(
                 return st.checkbox(label, key=key, value=value, disabled=not enabled)
             else:
                 return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
-
 
         campos = {
             "tipo_suelo": "categorico",
@@ -142,7 +138,6 @@ seleccion = st.selectbox(
                 fert_nueva, cultivo_idx_nuevo = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
                 cultivo_nuevo = cultivo_dict.get(cultivo_idx_nuevo, "Desconocido")
 
-                # Mostrar diferencias
                 diferencias = []
                 if int(fert_nueva) != int(registro_sel["fertilidad"]):
                     diferencias.append(f"Fertilidad: {registro_sel['fertilidad']} → {int(fert_nueva)}")
@@ -179,6 +174,7 @@ seleccion = st.selectbox(
             eliminar_registro(id_sel)
             st.warning("Registro eliminado.")
             st.rerun()
+
 
 
 
