@@ -46,12 +46,10 @@ with st.expander("📌 Datos actuales del registro"):
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
     # Función auxiliar para campos de entrada
-    def input_field(label, key, value, tipo, enabled=True, **kwargs):
-        if tipo == "categorico":
-            opciones = list(encoders[key].classes_)
-            return st.selectbox(label, opciones, index=opciones.index(value), disabled=not enabled, key=key)
-        else:
-            return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
+    def input_field(key, valor_actual, tipo="numerico", opciones=None, enabled=True, encoders=None):
+        ...
+        if tipo == "categorico" and opciones is None:
+             opciones = list(encoders[key].classes_)
 
     # Campos a editar
     campos = {
@@ -82,7 +80,8 @@ with st.expander("✏️ Editar registro", expanded=True):
             key=f"{campo}_{id_sel}",
             value=val,
             tipo=tipo,
-            enabled=registro_sel["prediccion"]
+            enabled=registro_sel["prediccion"],
+            encoders=encoders
         )
 
     # Botón de actualización
