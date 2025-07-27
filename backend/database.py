@@ -47,6 +47,9 @@ def eliminar_registro(id_registro):
 def actualizar_registro(id_registro, nuevos_datos):
     """Actualiza un registro existente por su ID."""
     try:
+        st.write("📝 Intentando actualizar ID:", id_registro)
+        st.write("🔄 Datos nuevos:", nuevos_datos)
+
         response = (
             supabase.table("registros_pp")
             .update(nuevos_datos)
@@ -56,13 +59,14 @@ def actualizar_registro(id_registro, nuevos_datos):
 
         st.write("📡 Respuesta de Supabase:", response)
 
-        if response.get("status_code", 200) >= 400:
+        if isinstance(response, dict) and response.get("status_code", 200) >= 400:
             st.error(f"❌ Error Supabase: {response.get('error')}")
-        elif not response.get("data"):
-            st.warning("⚠️ Supabase no devolvió datos. Es posible que no se haya actualizado ningún registro.")
+        elif "data" in response and not response["data"]:
+            st.warning("⚠️ Supabase no devolvió datos. Verifica si el ID existe o si hubo algún cambio real.")
         else:
             st.success(f"✏️ Registro con ID {id_registro} actualizado correctamente.")
     except Exception as e:
-        st.error(f"❌ Error al actualizar registro: {e}")
+        st.exception(e)
+
 
 
