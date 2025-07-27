@@ -79,24 +79,28 @@ if seleccion:
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
     with st.expander("✏️ Editar registro", expanded=True):
-        def input_field(label, key, value, enabled=True, **kwargs):
-            return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
+        def input_field(label, key, value, tipo, enabled=True, **kwargs):
+    if tipo == "categorico":
+        opciones = list(encoders[key].classes_)
+        return st.selectbox(label, opciones, index=opciones.index(value), disabled=not enabled, key=key)
+    else:
+        return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
 
         campos = {
-            "tipo_suelo": registro_sel["tipo_suelo"],
-            "pH": registro_sel["pH"],
-            "materia_organica": registro_sel["materia_organica"],
-            "conductividad": registro_sel["conductividad"],
-            "nitrogeno": registro_sel["nitrogeno"],
-            "fosforo": registro_sel["fosforo"],
-            "potasio": registro_sel["potasio"],
-            "humedad": registro_sel["humedad"],
-            "densidad": registro_sel["densidad"],
-            "condiciones_clima": registro_sel["condiciones_clima"],
-            "altitud": registro_sel["altitud"],
-            "temperatura": registro_sel["temperatura"],
-            "evapotranspiracion": registro_sel["evapotranspiracion"],
-            "mes": registro_sel["mes"]
+            "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
+            "pH": (registro_sel["pH"], "numerico"),
+            "materia_organica": (registro_sel["materia_organica"], "numerico"),
+            "conductividad": (registro_sel["conductividad"], "numerico"),
+            "nitrogeno": (registro_sel["nitrogeno"], "numerico"),
+            "fosforo": (registro_sel["fosforo"], "numerico"),
+            "potasio": (registro_sel["potasio"], "numerico"),
+            "humedad": (registro_sel["humedad"], "numerico"),
+            "densidad": (registro_sel["densidad"], "numerico"),
+            "condiciones_clima": (registro_sel["condiciones_clima"], "categorico"),
+            "altitud": (registro_sel["altitud"], "numerico"),
+            "temperatura": (registro_sel["temperatura"], "numerico"),
+            "evapotranspiracion": (registro_sel["evapotranspiracion"], "numerico"),
+            "mes": (registro_sel["mes"], "numerico")
         }
 
         nuevos_valores = {}
@@ -105,6 +109,7 @@ if seleccion:
                 campo.replace("_", " ").capitalize(),
                 key=f"{campo}_{id_sel}",
                 value=val,
+                tipo=tipo,
                 enabled=registro_sel["prediccion"]
             )
 
