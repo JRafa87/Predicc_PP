@@ -60,10 +60,9 @@ for fila in registros:
             columnas = st.columns(3)
             campos_numericos = [
                 "ph", "materia_organica", "conductividad", "nitrogeno", "fosforo", "potasio", "humedad",
-                "densidad", "altitud", "temperatura", "velocidad_viento", "probabilidad_precipitacion",
-                "evapotranspiracion", "volumen_agua", "mes"
+                "densidad", "altitud", "temperatura","evapotranspiracion", "mes"
             ]
-            campos_categoricos = ["tipo_suelo", "direccion_viento", "condiciones_clima", "tipo_riego", "region"]
+            campos_categoricos = ["tipo_suelo", "condiciones_clima"]
 
             datos_actualizados = {}
             for i, campo in enumerate(campos_numericos + campos_categoricos):
@@ -100,7 +99,7 @@ for fila in registros:
                     if st.checkbox("✅ Confirmar actualización del registro", key=f"confirmar_{fila['id']}"):
                         datos_actualizados["fertilidad"] = nueva_fertilidad
                         datos_actualizados["cultivo"] = nuevo_cultivo
-                        datos_actualizados["es_prediccion"] = True
+                        datos_actualizados["prediccion"] = True
                         datos_actualizados["fecha_ingreso"] = datetime.now(pytz.timezone("America/Lima")).isoformat()
                         actualizar_registro(fila['id'], datos_actualizados)
                         st.success("✅ Registro actualizado correctamente.")
