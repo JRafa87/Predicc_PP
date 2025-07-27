@@ -75,15 +75,15 @@ with st.expander("✏️ Editar registro", expanded=True):
 
     # Guardar nuevos valores
     nuevos_valores = {}
-    for campo, (val, tipo) in campos.items():
+    for campo, valor in registro_sel.items():
+        if campo in ["id", "fecha", "fertilidad", "cultivo", "prediccion"]:
+        continue  # campos que no se editan
         nuevos_valores[campo] = input_field(
-            campo.replace("_", " ").capitalize(),
-            key=f"{campo}_{id_sel}",
-            value=val,
-            tipo=tipo,
-            enabled=registro_sel["prediccion"],
-            #encoders=encoders
-        )
+        campo.replace("_", " ").capitalize(),
+        valor,
+        key=campo,
+        enabled=registro_sel["prediccion"]
+    )
 
     # Botón de actualización
     if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
