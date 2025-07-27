@@ -58,17 +58,21 @@ except Exception:
     st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
 
 # Selector de registro
+# Lista de opciones a mostrar
 opciones = list(df.iterrows())
 
+# Selector con formato legible
 seleccion = st.selectbox(
     "Selecciona un registro para editar o eliminar",
     opciones,
     format_func=lambda x: f"{x[1]['id']} | {x[1]['lugar'] or 'Sin lugar'} | {x[1]['cultivo'] or 'Sin cultivo'} | {'🧠 Predicción' if x[1]['prediccion'] else '✍️ Manual'}"
 )
 
+# Acceder al registro seleccionado
 if seleccion:
     idx_sel, registro_sel = seleccion
-    id_sel = registro_sel["id"]
+    id_sel = int(registro_sel["id"])
+
 
 
 if seleccion:
