@@ -80,9 +80,9 @@ if seleccion:
 
     # Cargar encoders si es editable (para los campos categóricos)
     if editable:
-        _, _, _, _, encoders = load_all_models()
+        modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
-        with st.expander("✏️ Editar registro", expanded=True):
+    with st.expander("✏️ Editar registro", expanded=True):
 
         def input_field(label, key, value, enabled=True):
             if isinstance(value, (int, float)):
@@ -90,46 +90,45 @@ if seleccion:
             elif isinstance(value, bool):
                 return st.checkbox(label, key=key, value=value, disabled=not enabled)
             elif isinstance(value, pd.Timestamp) or "fecha" in label.lower():
-                return st.date_input(label, key=key, value=value if value else datetime.today(), disabled=not enabled)
+                return st.date_input(label, key=key, value=value if value else datetime.date.today(), disabled=not enabled)
             else:
                 return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
 
-        campos = {
-            "tipo_suelo": (registro_sel["tipo_suelo"], "categorico"),
-            "pH": (registro_sel["pH"], "numerico"),
-            "materia_organica": (registro_sel["materia_organica"], "numerico"),
-            "conductividad": (registro_sel["conductividad"], "numerico"),
-            "nitrogeno": (registro_sel["nitrogeno"], "numerico"),
-            "fosforo": (registro_sel["fosforo"], "numerico"),
-            "potasio": (registro_sel["potasio"], "numerico"),
-            "humedad": (registro_sel["humedad"], "numerico"),
-            "densidad": (registro_sel["densidad"], "numerico"),
-            "condiciones_clima": (registro_sel["condiciones_clima"], "categorico"),
-            "altitud": (registro_sel["altitud"], "numerico"),
-            "temperatura": (registro_sel["temperatura"], "numerico"),
-            "evapotranspiracion": (registro_sel["evapotranspiracion"], "numerico"),
-            "mes": (registro_sel["mes"], "numerico")
+        campos_editables = {
+            "tipo_suelo": "categorico",
+            "pH": "numerico",
+            "materia_organica": "numerico",
+            "conductividad": "numerico",
+            "nitrogeno": "numerico",
+            "fosforo": "numerico",
+            "potasio": "numerico",
+            "humedad": "numerico",
+            "densidad": "numerico",
+            "condiciones_clima": "categorico",
+            "altitud": "numerico",
+            "temperatura": "numerico",
+            "evapotranspiracion": "numerico",
+            "mes": "numerico"
         }
 
         nuevos_valores = {}
-        for campo, (valor, tipo) in campos.items():
+        for campo in campos_editables:
+            valor_actual = registro_sel[campo]
             etiqueta = str(campo).replace("_", " ").capitalize()
-            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_editar", value=valor)
+            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_edit", value=valor_actual, enabled=editable)
 
         if editable and st.button("🔁 Actualizar registro"):
-            cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
+            cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores if isinstance(nuevos_valores[k], (int, float)))
             if not cambios:
                 st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
             else:
-                modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
-
-                tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
-                condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
+                tipo_suelo_encoded = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
+                condiciones_encoded = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
                 input_df = pd.DataFrame([{
                     **nuevos_valores,
-                    "tipo_suelo": tipo_suelo,
-                    "condiciones_clima": condiciones_clima
+                    "tipo_suelo": tipo_suelo_encoded,
+                    "condiciones_clima": condiciones_encoded
                 }])
 
                 fert_pred, cult_pred_idx = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
@@ -142,19 +141,18 @@ if seleccion:
                     **nuevos_valores,
                     "fertilidad": int(fert_pred),
                     "cultivo": cultivo_pred,
-                    "fecha": fecha_actual,
-                    "prediccion": True
+                    "fecha": fecha_actual
                 })
 
                 st.success("✅ Registro actualizado correctamente.")
                 st.rerun()
-
 
     with st.expander("🗑️ Eliminar registro"):
         if st.button("❌ Confirmar eliminación"):
             eliminar_registro(id_sel)
             st.warning("Registro eliminado.")
             st.rerun()
+
 
 
 
