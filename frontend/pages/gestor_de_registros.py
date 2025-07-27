@@ -6,8 +6,12 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
-from backend.supabase_client import obtener_registros, insertar_registro, eliminar_registro, actualizar_registro
-from backend.modelo import cargar_modelos, predecir
+from backend.database import obtener_registros, insertar_registro, eliminar_registro, actualizar_registro
+from backend.models import cargar_modelos, predecir
+from backend.loaders import load_all_models
+from backend.predictors import predecir
+from backend.utils import cultivos as cultivo_dict
+
 
 st.title("Gestión de registros de predicción")
 
