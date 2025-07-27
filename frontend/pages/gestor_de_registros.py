@@ -75,11 +75,7 @@ if seleccion:
 
 
 
-if seleccion:
-    id_sel = int(seleccion.split(" | ")[0])
-    registro_sel = df[df["id"] == id_sel].iloc[0]
-
-    st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
+    st.markdown(f"**Registro ID {idx_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
     editable = registro_sel["prediccion"]
     if editable:
