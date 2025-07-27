@@ -38,11 +38,10 @@ if df.empty:
     st.info("No hay registros aún.")
     st.stop()
 
-# Añadir columna visual para mostrar si es editable
+# Añadir columna visual
 df_mostrar = df.copy()
 df_mostrar["editable"] = df_mostrar["prediccion"].apply(lambda x: "✅ Sí" if x else "❌ No")
 
-# Mostrar dataframe con filas grises para registros predichos (no manuales)
 def colorear_filas(row):
     estilo = [''] * len(row)
     if row["prediccion"]:
@@ -57,13 +56,13 @@ try:
 except Exception:
     st.dataframe(df_mostrar.drop(columns=["prediccion"]), use_container_width=True)
 
-# Construir opciones del selectbox
+# Selectbox
 opciones = (
     df["id"].astype(str)
     + " | "
     + df["lugar"].fillna("Sin lugar")
     + " | "
-    + df["cultivo"]
+    + df["cultivo"].fillna("Sin cultivo")
     + " | "
     + df["prediccion"].apply(lambda x: "🧠 Predicción" if x else "✍️ Manual")
 )
@@ -77,8 +76,6 @@ if seleccion:
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
     editable = registro_sel["prediccion"]
-
-    # Cargar encoders si es editable (para los campos categóricos)
     if editable:
         modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
@@ -89,12 +86,10 @@ if seleccion:
                 return st.number_input(label, key=key, value=float(value), disabled=not enabled)
             elif isinstance(value, bool):
                 return st.checkbox(label, key=key, value=value, disabled=not enabled)
-            elif isinstance(value, pd.Timestamp) or "fecha" in label.lower():
-                return st.date_input(label, key=key, value=value if value else datetime.date.today(), disabled=not enabled)
             else:
                 return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
 
-        campos_editables = {
+        campos = {
             "tipo_suelo": "categorico",
             "pH": "numerico",
             "materia_organica": "numerico",
@@ -112,23 +107,34 @@ if seleccion:
         }
 
         nuevos_valores = {}
-        for campo in campos_editables:
-            valor_actual = registro_sel[campo]
-            etiqueta = str(campo).replace("_", " ").capitalize()
-            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_edit", value=valor_actual, enabled=editable)
+        for campo, tipo in campos.items():
+            etiqueta = campo.replace("_", " ").capitalize()
+            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_{id_sel}", value=registro_sel[campo], enabled=editable)
 
         if editable and st.button("🔁 Actualizar registro"):
-            cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores if isinstance(nuevos_valores[k], (int, float)))
-            if not cambios:
+            hay_cambios = False
+            for campo in campos:
+                original = registro_sel[campo]
+                nuevo = nuevos_valores[campo]
+                if campos[campo] == "numerico":
+                    if round(float(original), 2) != round(float(nuevo), 2):
+                        hay_cambios = True
+                        break
+                else:
+                    if str(original).strip() != str(nuevo).strip():
+                        hay_cambios = True
+                        break
+
+            if not hay_cambios:
                 st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
             else:
-                tipo_suelo_encoded = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
-                condiciones_encoded = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
+                tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
+                condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
                 input_df = pd.DataFrame([{
                     **nuevos_valores,
-                    "tipo_suelo": tipo_suelo_encoded,
-                    "condiciones_clima": condiciones_encoded
+                    "tipo_suelo": tipo_suelo,
+                    "condiciones_clima": condiciones_clima
                 }])
 
                 fert_pred, cult_pred_idx = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
