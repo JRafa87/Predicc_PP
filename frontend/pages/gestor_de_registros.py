@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import datetime
 import pytz
 from backend.database import obtener_registros, eliminar_registro, actualizar_registro, guardar
-from backend.models import cargar_modelos, predecir
+#from models import cargar_modelos
 from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
