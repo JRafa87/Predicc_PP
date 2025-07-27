@@ -73,7 +73,11 @@ if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
-    editable = bool(registro_sel.get("prediccion", False))
+    pred_val = registro_sel.get("prediccion", False)
+    if isinstance(pred_val, pd.Series):
+        pred_val = pred_val.item()
+    editable = bool(pred_val)
+
     if editable:
          modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
