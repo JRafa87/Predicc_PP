@@ -69,14 +69,15 @@ seleccion = st.selectbox(
 )
 
 # Acceder al registro seleccionado
-if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 2:
+    if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 2:
     idx_sel, registro_sel = seleccion
     id_sel = int(registro_sel["id"])
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
     editable = registro_sel["prediccion"]
-    if editable:
+    if pd.notna(editable) and bool(editable):
+
         modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
     with st.expander("✏️ Editar registro", expanded=True):
