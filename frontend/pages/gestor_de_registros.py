@@ -43,7 +43,7 @@ registro_sel = df[df["id"] == id_sel].iloc[0]
 with st.expander("📌 Datos actuales del registro"):
     st.write(registro_sel)
 
-encoders = load_all_models()
+#encoders = load_all_models()
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
     # Función auxiliar para campos de entrada
@@ -82,7 +82,7 @@ with st.expander("✏️ Editar registro", expanded=True):
             value=val,
             tipo=tipo,
             enabled=registro_sel["prediccion"],
-            encoders=encoders
+            #encoders=encoders
         )
 
     # Botón de actualización
