@@ -9,7 +9,6 @@ from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
 from datetime import datetime
-from backend.loaders import encoders
 import pytz
 
 st.set_page_config(page_title="Gestor de Registros", layout="wide")
