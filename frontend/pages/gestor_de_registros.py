@@ -83,6 +83,7 @@ if seleccion:
             return st.number_input(label, key=key, value=value, disabled=not enabled, **kwargs)
 
         campos = {
+            "tipo_suelo": registro_sel["tipo_suelo"],
             "pH": registro_sel["pH"],
             "materia_organica": registro_sel["materia_organica"],
             "conductividad": registro_sel["conductividad"],
@@ -91,6 +92,7 @@ if seleccion:
             "potasio": registro_sel["potasio"],
             "humedad": registro_sel["humedad"],
             "densidad": registro_sel["densidad"],
+            "condiciones_clima": registro_sel["condiciones_clima"],
             "altitud": registro_sel["altitud"],
             "temperatura": registro_sel["temperatura"],
             "evapotranspiracion": registro_sel["evapotranspiracion"],
