@@ -68,11 +68,22 @@ opciones = (
     + df["prediccion"].apply(lambda x: "🧠 Predicción" if x else "✍️ Manual")
 )
 
+if len(opciones) == 0:
+    st.warning("⚠️ No hay registros disponibles para seleccionar.")
+    st.stop()
+
 seleccion = st.selectbox("Selecciona un registro para editar o eliminar", opciones)
 
-if seleccion:
-    id_sel = int(seleccion.split(" | ")[0])
-    registro_sel = df[df["id"] == id_sel].iloc[0]
+if seleccion and " | " in seleccion:
+    try:
+        id_sel = int(seleccion.split(" | ")[0])
+    except ValueError:
+        st.error("❌ Error al interpretar el ID del registro.")
+        st.stop()
+else:
+    st.error("❌ Formato de selección inválido.")
+    st.stop()
+
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
