@@ -160,7 +160,7 @@ if seleccion:
                             **nuevos_valores,
                             "fertilidad": int(fert_nueva),
                             "cultivo": cultivo_nuevo,
-                            "fecha": fecha_actual,
+                            "fecha_ingreso": fecha_actual,
                             "lugar": registro_sel.get("lugar"),
                             "latitud": registro_sel.get("latitud"),
                             "longitud": registro_sel.get("longitud"),
