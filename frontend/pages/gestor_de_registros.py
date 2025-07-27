@@ -69,11 +69,9 @@ seleccion = st.selectbox(
 )
 
 # Acceder al registro seleccionado
-if seleccion:
+if seleccion is not None and isinstance(seleccion, tuple) and len(seleccion) == 2:
     idx_sel, registro_sel = seleccion
     id_sel = int(registro_sel["id"])
-
-
 
     st.markdown(f"**Registro ID {id_sel}** – {'🧠 Predicción automática' if registro_sel['prediccion'] else '✍️ Ingreso manual'}")
 
@@ -90,6 +88,7 @@ if seleccion:
                 return st.checkbox(label, key=key, value=value, disabled=not enabled)
             else:
                 return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
+
 
         campos = {
             "tipo_suelo": "categorico",
