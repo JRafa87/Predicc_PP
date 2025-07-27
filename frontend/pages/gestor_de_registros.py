@@ -84,13 +84,16 @@ if seleccion:
 
     with st.expander("✏️ Editar registro", expanded=True):
 
-        def input_field(label, key, value, enabled=True, **kwargs):
-            if pd.isna(value):
-                 value = "" if not enabled else 0.0
-            if enabled:
-                return st.number_input(label, key=key, value=float(value), disabled=False, **kwargs)
+        def input_field(label, key, value, enabled=True):
+            if isinstance(value, (int, float)):
+                return st.number_input(label, key=key, value=float(value), disabled=not enabled)
+            elif isinstance(value, bool):
+                return st.checkbox(label, key=key, value=value, disabled=not enabled)
+            elif isinstance(value, pd.Timestamp) or "fecha" in label.lower():
+                return st.date_input(label, key=key, value=value if value else datetime.date.today(), disabled=not enabled)
             else:
-                return st.text_input(label, key=key, value=str(value), disabled=True)
+                return st.text_input(label, key=key, value=str(value) if value is not None else "", disabled=not enabled)
+
 
 
         campos = {
@@ -111,14 +114,11 @@ if seleccion:
         }
 
         nuevos_valores = {}
-        for campo, (valor, tipo) in campos.items():
-            nuevos_valores[campo] = input_field(
-                campo.replace("_", " ").capitalize(),
-                key=f"{campo}_{id_sel}",
-                value=valor,
-                tipo=tipo,
-                enabled=editable
-            )
+        for campo, valor in fila.items():
+            editable = campo in campos_editables
+            etiqueta = str(campo).replace("_", " ").capitalize()
+            nuevos_valores[campo] = input_field(etiqueta, key=f"{campo}_{i}", value=valor, enabled=editable)
+
 
         if editable and st.button("🔁 Actualizar registro"):
             cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2) for k in nuevos_valores)
