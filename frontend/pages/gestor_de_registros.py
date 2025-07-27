@@ -16,7 +16,7 @@ st.title("📋 Gestor de Registros de Predicción")
 
 # Cargar registros desde Supabase
 registros = obtener_registros()
-if not registros:
+if registros.empty:
     st.info("No hay registros disponibles.")
     st.stop()
 
