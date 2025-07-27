@@ -32,6 +32,8 @@ if "registro_predicho" in st.session_state:
 
 st.markdown("### 📄 Registros actuales en Supabase")
 df = obtener_registros()
+df = df.sort_values(by="id", ascending=True).reset_index(drop=True)
+
 
 if df.empty:
     st.info("No hay registros aún.")
