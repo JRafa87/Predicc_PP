@@ -45,7 +45,7 @@ def eliminar_registro(id_registro):
 
 
 def actualizar_registro(id_registro, nuevos_datos):
-    """Actualiza un registro existente por su ID y controla errores correctamente."""
+    """Actualiza un registro existente por su ID y guarda mensajes en session_state."""
     try:
         st.write("📝 Intentando actualizar ID:", id_registro)
         st.write("🔄 Datos nuevos:", nuevos_datos)
@@ -59,33 +59,30 @@ def actualizar_registro(id_registro, nuevos_datos):
 
         st.write("📡 Respuesta de Supabase:", response)
 
-        # Validación por tipo y estado
         if isinstance(response, dict) and response.get("status_code", 200) >= 400:
-            st.error(f"❌ Error Supabase: {response.get('error')}")
+            st.session_state.update_error = f"❌ Error Supabase: {response.get('error')}"
             return False
 
-        # Si no hay datos devueltos
         elif "data" in response and not response["data"]:
-            st.warning("⚠️ No se actualizó ningún registro. Verifica si el ID existe o si no cambiaste los datos.")
+            st.session_state.update_error = "⚠️ No se actualizó ningún registro. Verifica si el ID existe o si no cambiaste los datos."
             return False
 
-        # Actualización exitosa
         else:
-            st.success(f"✅ Registro con ID {id_registro} actualizado correctamente.")
+            st.session_state.update_success = f"✅ Registro con ID {id_registro} actualizado correctamente."
             return True
 
     except Exception as e:
-        st.exception(f"⚠️ Excepción inesperada: {e}")
+        st.session_state.update_error = f"⚠️ Excepción inesperada: {str(e)}"
         return False
 
-     # Mostrar mensajes si existen en session_state
-        if "update_error" in st.session_state:
-            st.error(st.session_state.update_error)
-            del st.session_state.update_error
+# --- Mostrar mensajes persistentes si existen ---
+if "update_error" in st.session_state:
+    st.error(st.session_state.update_error)
+    del st.session_state.update_error
 
-        if "update_success" in st.session_state:
-            st.success(st.session_state.update_success)
-            del st.session_state.update_success
+if "update_success" in st.session_state:
+    st.success(st.session_state.update_success)
+    del st.session_state.update_success
 
 
 
