@@ -31,7 +31,7 @@ with st.expander("📑 Ver todos los registros", expanded=True):
 # Selección de registro por ID
 st.subheader("🔍 Seleccionar un registro para editar o eliminar")
 opciones = [
-    f"{row['id']} | {row.get('lugar') or f'{row.get('latitud', 0):.3f},{row.get('longitud', 0):.3f}'}"
+    f"{row['id']} | {row.get('lugar', f'{row.get("latitud", 0):.3f},{row.get("longitud", 0):.3f}')}"
     for _, row in df.iterrows()
 ]
 seleccion = st.selectbox("Selecciona un registro:", opciones)
@@ -109,8 +109,8 @@ with st.expander("✏️ Editar registro", expanded=True):
                 break
             
             # Comparación numérica con tolerancia
-            if isinstance(registro_sel[campo], (int, float, np.number)) and \
-               isinstance(nuevos_valores[campo], (int, float)):
+            if (isinstance(registro_sel[campo], (int, float)) and 
+                isinstance(nuevos_valores[campo], (int, float))):
                 if abs(registro_sel[campo] - nuevos_valores[campo]) > 1e-5:
                     cambios = True
                     break
