@@ -5,7 +5,7 @@ import streamlit as st
 import pytz
 import pandas as pd
 
-# Conexión a Supabase
+# Conexión a Supabase usando st.secrets o variables de entorno
 SUPABASE_URL = st.secrets["supabase"]["url"]
 SUPABASE_KEY = st.secrets["supabase"]["anon_key"]
 
@@ -15,38 +15,25 @@ def guardar(data_dict):
     """Guarda una predicción en la tabla registros_pp."""
     try:
         tz = pytz.timezone("America/Lima")
-        data_dict["fecha_ingreso"] = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+        data_dict["fecha_ingreso"] = datetime.now(tz).strftime("%Y-%m-%d")
         data_dict["prediccion"] = True
-        
-        # Insertar en Supabase
-        response, error = supabase.table("registros_pp").insert(data_dict).execute()
-        
-        if error:
-            st.error(f"❌ Error Supabase: {error}")
-            return None
-            
+        response = supabase.table("registros_pp").insert(data_dict).execute()
         st.success("✅ Registro guardado exitosamente.")
         return response
     except Exception as e:
         st.error(f"❌ Error al insertar en Supabase: {e}")
         return None
 
+
 def obtener_registros():
     """Obtiene todos los registros ordenados por fecha."""
     try:
-        # Obtener TODOS los registros sin límite
-        response = supabase.table("registros_pp").select("*").execute()
-        
-        if response.data:
-            df = pd.DataFrame(response.data)
-            # Ordenar por ID descendente
-            df = df.sort_values("id", ascending=False)
-            return df
-        return pd.DataFrame()
-        
+        response = supabase.table("registros_pp").select("*").order("fecha_ingreso", desc=True).execute()
+        return pd.DataFrame(response.data)
     except Exception as e:
         st.error(f"❌ Error al obtener registros: {e}")
         return pd.DataFrame()
+
 
 def eliminar_registro(id_registro):
     """Elimina un registro por su ID."""
@@ -56,26 +43,30 @@ def eliminar_registro(id_registro):
     except Exception as e:
         st.error(f"❌ Error al eliminar registro: {e}")
 
+
 def actualizar_registro(id_registro, nuevos_datos):
     """Actualiza un registro existente por su ID."""
     try:
-        # Ejecutar actualización
-        response, error = supabase.table("registros_pp").update(nuevos_datos).eq("id", id_registro).execute()
-        
-        if error:
-            st.error(f"❌ Error Supabase: {error}")
-            return None
-            
-        # Verificar si realmente se actualizó algo
-        if response and len(response.data) > 0:
-            st.success(f"✏️ Registro con ID {id_registro} actualizado correctamente.")
-            return response
+        st.write("📝 Intentando actualizar ID:", id_registro)
+        st.write("🔄 Datos nuevos:", nuevos_datos)
+
+        response = (
+            supabase.table("registros_pp")
+            .update(nuevos_datos)
+            .eq("id", id_registro)
+            .execute()
+        )
+
+        st.write("📡 Respuesta de Supabase:", response)
+
+        if isinstance(response, dict) and response.get("status_code", 200) >= 400:
+            st.error(f"❌ Error Supabase: {response.get('error')}")
+        elif "data" in response and not response["data"]:
+            st.warning("⚠️ Supabase no devolvió datos. Verifica si el ID existe o si hubo algún cambio real.")
         else:
-            st.warning("⚠️ No se detectaron cambios o el registro no existe")
-            return None
+            st.success(f"✏️ Registro con ID {id_registro} actualizado correctamente.")
     except Exception as e:
-        st.error(f"❌ Error inesperado: {str(e)}")
-        return None
+        st.exception(e)
 
 
 
