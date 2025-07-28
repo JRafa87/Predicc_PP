@@ -16,16 +16,20 @@ st.title("📋 Gestor de Registros de Predicción")
 
 # Cargar registros desde Supabase
 registros = obtener_registros()
+
 if registros.empty:
     st.info("No hay registros disponibles.")
     st.stop()
 
+# Asegurarte de que 'id' es entero
 df = pd.DataFrame(registros)
+df["id"] = df["id"].astype(int)
 df = df.sort_values(by="id", ascending=True)
 
 # Mostrar tabla
 with st.expander("📑 Ver todos los registros", expanded=True):
     st.dataframe(df, use_container_width=True)
+
 
 # Selección de registro por ID
 st.subheader("🔍 Seleccionar un registro para editar o eliminar")
