@@ -84,6 +84,11 @@ if "update_success" in st.session_state:
     st.success(st.session_state.update_success)
     del st.session_state.update_success
 
+# --- Interfaz de actualización ---
+st.title("✏️ Actualizar registro")
+
+id_registro = st.number_input("🆔 ID del registro a actualizar", min_value=1, step=1)
+
 if st.button("Actualizar"):
     actualizar_registro(id_registro, nuevos_datos)
     st.rerun()  # Muestra el mensaje en la parte superior luego de recarga
