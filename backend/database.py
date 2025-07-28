@@ -78,6 +78,14 @@ def actualizar_registro(id_registro, nuevos_datos):
         st.exception(f"⚠️ Excepción inesperada: {e}")
         return False
 
+     # Mostrar mensajes si existen en session_state
+        if "update_error" in st.session_state:
+            st.error(st.session_state.update_error)
+            del st.session_state.update_error
+
+        if "update_success" in st.session_state:
+            st.success(st.session_state.update_success)
+            del st.session_state.update_success
 
 
 
