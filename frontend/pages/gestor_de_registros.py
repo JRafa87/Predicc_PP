@@ -30,10 +30,15 @@ with st.expander("📑 Ver todos los registros", expanded=True):
 
 # Selección de registro por ID
 st.subheader("🔍 Seleccionar un registro para editar o eliminar")
-opciones = [
-    f"{row['id']} | {row.get('lugar', f'{row.get("latitud", 0):.3f},{row.get("longitud", 0):.3f}')}"
-    for _, row in df.iterrows()
-]
+opciones = []
+for _, row in df.iterrows():
+    lugar = row.get('lugar', '')
+    if not lugar:
+        lat = row.get('latitud', 0)
+        lon = row.get('longitud', 0)
+        lugar = f"{lat:.3f},{lon:.3f}"
+    opciones.append(f"{row['id']} | {lugar}")
+
 seleccion = st.selectbox("Selecciona un registro:", opciones)
 id_sel = int(seleccion.split(" | ")[0])
 registro_sel = df[df["id"] == id_sel].iloc[0]
@@ -85,12 +90,12 @@ with st.expander("✏️ Editar registro", expanded=True):
     for campo, datos in campos.items():
         valor_actual = datos[0]
         tipo = datos[1]
-        opciones = datos[2] if len(datos) > 2 else None
+        opciones_lista = datos[2] if len(datos) > 2 else None
         nuevos_valores[campo] = input_field(
             campo.replace("_", " ").capitalize(),
             valor_actual,
             tipo=tipo,
-            opciones=opciones,
+            opciones=opciones_lista,
             key=campo,
             enabled=registro_sel["prediccion"]
         )
@@ -109,8 +114,7 @@ with st.expander("✏️ Editar registro", expanded=True):
                 break
             
             # Comparación numérica con tolerancia
-            if (isinstance(registro_sel[campo], (int, float)) and 
-                isinstance(nuevos_valores[campo], (int, float))):
+            if isinstance(registro_sel[campo], (int, float)) and isinstance(nuevos_valores[campo], (int, float)):
                 if abs(registro_sel[campo] - nuevos_valores[campo]) > 1e-5:
                     cambios = True
                     break
