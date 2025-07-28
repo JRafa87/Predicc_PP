@@ -60,13 +60,17 @@ def actualizar_registro(id_registro, nuevos_datos):
         st.write("📡 Respuesta de Supabase:", response)
 
         if isinstance(response, dict) and response.get("status_code", 200) >= 400:
-            st.error(f"❌ Error Supabase: {response.get('error')}")
+            st.session_state.update_error = f"❌ Error Supabase: {response.get('error')}"
         elif "data" in response and not response["data"]:
-            st.warning("⚠️ Supabase no devolvió datos. Verifica si el ID existe o si hubo algún cambio real.")
+            st.session_state.update_error = "⚠️ Supabase no devolvió datos. Verifica si el ID existe o si hubo algún cambio real."
         else:
-            st.success(f"✏️ Registro con ID {id_registro} actualizado correctamente.")
+            st.session_state.update_success = f"✏️ Registro con ID {id_registro} actualizado correctamente."
+            st.rerun()
+
     except Exception as e:
-        st.exception(e)
+        st.session_state.update_error = f"⚠️ Excepción: {e}"
+        st.rerun()
+
 
 # --- Mostrar mensajes persistentes si existen ---
 if "update_error" in st.session_state:
@@ -76,4 +80,13 @@ if "update_error" in st.session_state:
 if "update_success" in st.session_state:
     st.success(st.session_state.update_success)
     del st.session_state.update_success
+
+# --- Interfaz básica para probar ---
+st.title("Actualizar Registro")
+
+id_registro = st.number_input("ID del registro a actualizar", min_value=1, step=1)
+
+if st.button("Actualizar"):
+    actualizar_registro(id_registro, nuevos_datos)
+
 
