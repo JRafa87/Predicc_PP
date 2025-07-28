@@ -1,15 +1,16 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import streamlit as st
 import pandas as pd
-from backend.database import obtener_registros, eliminar_registro, actualizar_registro, guardar
+from backend.database import obtener_registros, eliminar_registro, actualizar_registro
 from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
 from datetime import datetime
 import pytz
+import numpy as np
 
 st.set_page_config(page_title="Gestor de Registros", layout="wide")
 st.title("📋 Gestor de Registros de Predicción")
@@ -21,7 +22,7 @@ if registros.empty:
     st.stop()
 
 df = pd.DataFrame(registros)
-df = df.sort_values(by="id", ascending=True)
+df = df.sort_values(by="id", ascending=False)
 
 # Mostrar tabla
 with st.expander("📑 Ver todos los registros", expanded=True):
@@ -43,7 +44,9 @@ with st.expander("📌 Datos actuales del registro"):
 
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
-
+    # Cargar modelos y encoders
+    modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
+    
     # Función auxiliar para generar campos de entrada
     def input_field(label, valor_actual, tipo="numerico", opciones=None, key=None, enabled=True):
         if not enabled:
@@ -56,9 +59,6 @@ with st.expander("✏️ Editar registro", expanded=True):
             return st.selectbox(label, opciones, index=opciones.index(valor_actual), key=key)
         else:
             return st.text_input(label, value=str(valor_actual), key=key)
-
-    # Cargar modelos y encoders una sola vez
-    modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
     # Campos a editar
     campos = {
@@ -97,36 +97,63 @@ with st.expander("✏️ Editar registro", expanded=True):
 
     # Botón de actualización
     if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
-        cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2)
-                      if isinstance(nuevos_valores[k], (int, float)) else nuevos_valores[k] != registro_sel[k]
-                      for k in nuevos_valores)
-
+        # Verificar si hay cambios reales
+        cambios = False
+        for campo in campos:
+            valor_original = registro_sel[campo]
+            valor_nuevo = nuevos_valores[campo]
+            
+            # Manejar diferentes tipos de datos
+            if isinstance(valor_original, (int, float)) and isinstance(valor_nuevo, (int, float)):
+                if abs(valor_original - valor_nuevo) > 1e-5:  # Tolerancia para valores numéricos
+                    cambios = True
+                    break
+            elif str(valor_original) != str(valor_nuevo):
+                cambios = True
+                break
+        
         if not cambios:
             st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
         else:
-            # Codificar variables categóricas
-            tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
-            condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
+            # Convertir valores de texto a numéricos para predicción
+            tipo_suelo_code = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
+            condiciones_clima_code = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
+            # Crear DataFrame para predicción
             input_df = pd.DataFrame([{
-                **nuevos_valores,
-                "tipo_suelo": tipo_suelo,
-                "condiciones_clima": condiciones_clima
+                "tipo_suelo": tipo_suelo_code,
+                "pH": nuevos_valores["pH"],
+                "materia_organica": nuevos_valores["materia_organica"],
+                "conductividad": nuevos_valores["conductividad"],
+                "nitrogeno": nuevos_valores["nitrogeno"],
+                "fosforo": nuevos_valores["fosforo"],
+                "potasio": nuevos_valores["potasio"],
+                "humedad": nuevos_valores["humedad"],
+                "densidad": nuevos_valores["densidad"],
+                "altitud": nuevos_valores["altitud"],
+                "temperatura": nuevos_valores["temperatura"],
+                "condiciones_clima": condiciones_clima_code,
+                "mes": nuevos_valores["mes"],
+                "evapotranspiracion": nuevos_valores["evapotranspiracion"]
             }])
 
+            # Realizar nueva predicción
             fert_pred, cult_pred_idx = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             cultivo_pred = cultivo_dict.get(cult_pred_idx, "Desconocido")
 
+            # Preparar datos para actualizar
             tz = pytz.timezone("America/Lima")
             fecha_actual = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
-
-            actualizar_registro(id_sel, {
+            
+            datos_actualizacion = {
                 **nuevos_valores,
                 "fertilidad": int(fert_pred),
                 "cultivo": cultivo_pred,
                 "fecha": fecha_actual
-            })
-
+            }
+            
+            # Actualizar registro en Supabase
+            actualizar_registro(id_sel, datos_actualizacion)
             st.success("✅ Registro actualizado correctamente.")
             st.rerun()
 
@@ -134,7 +161,6 @@ with st.expander("✏️ Editar registro", expanded=True):
 with st.expander("🗑️ Eliminar registro"):
     if st.button("❌ Confirmar eliminación"):
         eliminar_registro(id_sel)
-        st.warning("Registro eliminado.")
         st.rerun()
 
 
