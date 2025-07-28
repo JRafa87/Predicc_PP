@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import streamlit as st
 import pandas as pd
-from backend.database import obtener_registros, eliminar_registro, actualizar_registro, guardar
+from backend.database import obtener_registros, eliminar_registro, actualizar_registro
 from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
@@ -21,7 +21,6 @@ if registros.empty:
     st.info("No hay registros disponibles.")
     st.stop()
 
-# Asegurarte de que 'id' es entero
 df = pd.DataFrame(registros)
 df["id"] = df["id"].astype(int)
 df = df.sort_values(by="id", ascending=True)
@@ -29,7 +28,6 @@ df = df.sort_values(by="id", ascending=True)
 # Mostrar tabla
 with st.expander("📑 Ver todos los registros", expanded=True):
     st.dataframe(df, use_container_width=True)
-
 
 # Selección de registro por ID
 st.subheader("🔍 Seleccionar un registro para editar o eliminar")
@@ -47,13 +45,10 @@ with st.expander("📌 Datos actuales del registro"):
 
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
-
-    # Función auxiliar para generar campos de entrada
     def input_field(label, valor_actual, tipo="numerico", opciones=None, key=None, enabled=True):
         if not enabled:
             st.text_input(label, value=str(valor_actual), disabled=True, key=key)
             return valor_actual
-
         if tipo == "numerico":
             return st.number_input(label, value=float(valor_actual), key=key)
         elif tipo == "categorico":
@@ -61,10 +56,8 @@ with st.expander("✏️ Editar registro", expanded=True):
         else:
             return st.text_input(label, value=str(valor_actual), key=key)
 
-    # Cargar modelos y encoders una sola vez
     modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders = load_all_models()
 
-    # Campos a editar
     campos = {
         "tipo_suelo": (registro_sel["tipo_suelo"], "categorico", list(encoders["tipo_suelo"].classes_)),
         "pH": (registro_sel["pH"], "numerico"),
@@ -99,7 +92,6 @@ with st.expander("✏️ Editar registro", expanded=True):
             enabled=registro_sel["prediccion"]
         )
 
-    # Botón de actualización
     if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
         cambios = any(round(nuevos_valores[k], 2) != round(registro_sel[k], 2)
                       if isinstance(nuevos_valores[k], (int, float)) else nuevos_valores[k] != registro_sel[k]
@@ -108,7 +100,6 @@ with st.expander("✏️ Editar registro", expanded=True):
         if not cambios:
             st.info("ℹ️ No se detectaron cambios. El registro no fue actualizado.")
         else:
-            # Codificar variables categóricas
             tipo_suelo = encoders["tipo_suelo"].transform([nuevos_valores["tipo_suelo"]])[0]
             condiciones_clima = encoders["condiciones_clima"].transform([nuevos_valores["condiciones_clima"]])[0]
 
@@ -121,18 +112,44 @@ with st.expander("✏️ Editar registro", expanded=True):
             fert_pred, cult_pred_idx = predecir(input_df, modelo_fert, modelo_cult, scaler_fert, scaler_cult, encoders)
             cultivo_pred = cultivo_dict.get(cult_pred_idx, "Desconocido")
 
-            tz = pytz.timezone("America/Lima")
-            fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+            fert_actual = registro_sel["fertilidad"]
+            cult_actual = registro_sel["cultivo"]
 
-            actualizar_registro(id_sel, {
-                **nuevos_valores,
-                "fertilidad": int(fert_pred),
-                "cultivo": cultivo_pred,
-                "fecha": fecha_actual
-            })
+            if int(fert_pred) == fert_actual and cultivo_pred == cult_actual:
+                tz = pytz.timezone("America/Lima")
+                fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+                actualizar_registro(id_sel, {
+                    **nuevos_valores,
+                    "fertilidad": int(fert_pred),
+                    "cultivo": cultivo_pred,
+                    "fecha": fecha_actual
+                })
+                st.success("✅ Registro actualizado correctamente.")
+                st.rerun()
+            else:
+                st.warning("⚠️ La predicción ha cambiado:")
+                col1, col2 = st.columns(2)
+                col1.metric("Fertilidad actual", fert_actual)
+                col2.metric("Nueva fertilidad", int(fert_pred))
 
-            st.success("✅ Registro actualizado correctamente.")
-            st.rerun()
+                col1.metric("Cultivo actual", cult_actual)
+                col2.metric("Nuevo cultivo", cultivo_pred)
+
+                confirmar = st.radio("¿Deseas actualizar el registro con la nueva predicción?", ["No", "Sí"], horizontal=True)
+
+                if confirmar == "Sí":
+                    tz = pytz.timezone("America/Lima")
+                    fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+                    actualizar_registro(id_sel, {
+                        **nuevos_valores,
+                        "fertilidad": int(fert_pred),
+                        "cultivo": cultivo_pred,
+                        "fecha": fecha_actual
+                    })
+                    st.success("✅ Registro actualizado con nueva predicción.")
+                    st.rerun()
+                else:
+                    st.info("No se actualizó el registro.")
 
 # Eliminación
 with st.expander("🗑️ Eliminar registro"):
@@ -140,6 +157,7 @@ with st.expander("🗑️ Eliminar registro"):
         eliminar_registro(id_sel)
         st.warning("Registro eliminado.")
         st.rerun()
+
 
 
 
