@@ -4,13 +4,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 from backend.database import obtener_registros, eliminar_registro, actualizar_registro
 from backend.loaders import load_all_models
 from backend.predictors import predecir
 from backend.utils import cultivos as cultivo_dict
 from datetime import datetime
 import pytz
-import numpy as np
 
 st.set_page_config(page_title="Gestor de Registros", layout="wide")
 st.title("📋 Gestor de Registros de Predicción")
@@ -99,16 +99,23 @@ with st.expander("✏️ Editar registro", expanded=True):
     if registro_sel["prediccion"] and st.button("🔁 Actualizar registro"):
         # Verificar si hay cambios reales
         cambios = False
+        
         for campo in campos:
-            valor_original = registro_sel[campo]
-            valor_nuevo = nuevos_valores[campo]
+            # Manejo especial para valores nulos/NaN
+            if pd.isna(registro_sel[campo]) and pd.isna(nuevos_valores[campo]):
+                continue
+            elif pd.isna(registro_sel[campo]) or pd.isna(nuevos_valores[campo]):
+                cambios = True
+                break
             
-            # Manejar diferentes tipos de datos
-            if isinstance(valor_original, (int, float)) and isinstance(valor_nuevo, (int, float)):
-                if abs(valor_original - valor_nuevo) > 1e-5:  # Tolerancia para valores numéricos
+            # Comparación numérica con tolerancia
+            if isinstance(registro_sel[campo], (int, float, np.number)) and \
+               isinstance(nuevos_valores[campo], (int, float)):
+                if abs(registro_sel[campo] - nuevos_valores[campo]) > 1e-5:
                     cambios = True
                     break
-            elif str(valor_original) != str(valor_nuevo):
+            # Comparación de texto
+            elif str(registro_sel[campo]) != str(nuevos_valores[campo]):
                 cambios = True
                 break
         
