@@ -154,6 +154,7 @@ with st.expander("✏️ Editar registro", expanded=True):
                 )
 
                 if confirmar== "Sí":
+                    if st.button("✅ Confirmar actualización"):
                     tz = pytz.timezone("America/Lima")
                     fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
