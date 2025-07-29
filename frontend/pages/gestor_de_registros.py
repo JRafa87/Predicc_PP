@@ -138,16 +138,22 @@ with st.expander("✏️ Editar registro", expanded=True):
                 confirmar = st.radio("¿Deseas actualizar el registro con la nueva predicción?", ["No", "Sí"], horizontal=True)
 
                 if confirmar == "Sí":
-                    tz = pytz.timezone("America/Lima")
-                    fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
-                    actualizar_registro(id_sel, {
+                   tz = pytz.timezone("America/Lima")
+                   fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+
+                   datos_a_guardar = {
                         **nuevos_valores,
                         "fertilidad": int(fert_pred),
                         "cultivo": cultivo_pred,
                         "fecha": fecha_actual
-                    })
+                    }
+
+                    st.write("🔍 Datos que se enviarán a Supabase:", datos_a_guardar)  # Debug visible
+
+                    actualizar_registro(id_sel, datos_a_guardar)
                     st.success("✅ Registro actualizado con nueva predicción.")
                     st.rerun()
+
                 else:
                     st.info("No se actualizó el registro.")
 
