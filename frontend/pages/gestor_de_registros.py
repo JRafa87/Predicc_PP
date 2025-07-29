@@ -158,7 +158,7 @@ with st.expander("✏️ Editar registro", expanded=True):
 
                     actualizar_registro(id_sel, datos_a_guardar)
                     st.success("✅ Registro actualizado con nueva predicción.")
-                    st.rerun()
+                    #st.rerun()
                 else:
                     st.info("No se actualizó el registro.")
 
