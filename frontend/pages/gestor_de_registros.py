@@ -119,18 +119,17 @@ with st.expander("✏️ Editar registro", expanded=True):
             if int(fert_pred) == fert_actual and cultivo_pred == cult_actual:
                 tz = pytz.timezone("America/Lima")
                 fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
-                datos_a_guardar {
+                actualizar_registro(id_sel, {
                     **nuevos_valores,
                     "fertilidad": int(fert_pred),
                     "cultivo": cultivo_pred,
                     "fecha": fecha_actual
-                }
+                })
 
                 # 🐞 DEPURACIÓN
-                st.write("🔍 ID del registro seleccionado:", id_sel)
-                st.write("🔍 Datos a guardar en Supabase:", datos_a_guardar)
-                respuesta = actualizar_registro(id_sel, datos_a_guardar)
-
+                #st.write("🔍 ID del registro seleccionado:", id_sel)
+                #st.write("🔍 Datos a guardar en Supabase:", datos_a_guardar)
+                #respuesta = actualizar_registro(id_sel, datos_a_guardar)
                 st.success("✅ Registro actualizado correctamente.")
                 st.rerun()
             else:
