@@ -127,13 +127,8 @@ with st.expander("✏️ Editar registro", expanded=True):
                     "cultivo": cultivo_pred,
                     "fecha": fecha_actual
                 })
-
-                # 🐞 DEPURACIÓN
-                #st.write("🔍 ID del registro seleccionado:", id_sel)
-                #st.write("🔍 Datos a guardar en Supabase:", datos_a_guardar)
-                #respuesta = actualizar_registro(id_sel, datos_a_guardar)
                 st.success("✅ Registro actualizado correctamente.")
-                #st.rerun()
+                # st.rerun()
             else:
                 st.warning("⚠️ La predicción ha cambiado:")
                 col1, col2 = st.columns(2)
@@ -142,34 +137,30 @@ with st.expander("✏️ Editar registro", expanded=True):
 
                 col1.metric("Cultivo actual", cult_actual)
                 col2.metric("Nuevo cultivo", cultivo_pred)
-                
-                #if "confirmar_actualizacion" not in st.session_state:
-                    #st.session_state.confirmar_actualizacion = None
-                
+
                 confirmar = st.radio(
-                   "¿Deseas actualizar el registro con la nueva predicción?",
+                    "¿Deseas actualizar el registro con la nueva predicción?",
                     ["No", "Sí"],
                     horizontal=True,
                     key="confirmar_actualizacion"
                 )
 
-                if confirmar== "Sí":
-                    #if st.button("✅ Confirmar actualización"):
-                tz = pytz.timezone("America/Lima")
-                fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+                if confirmar == "Sí":
+                    tz = pytz.timezone("America/Lima")
+                    fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
-                datos_a_guardar = {
+                    datos_a_guardar = {
                         **nuevos_valores,
                         "fertilidad": int(fert_pred),
                         "cultivo": cultivo_pred,
                         "fecha": fecha_actual
-                }
+                    }
 
-                    st.write("🔍 Datos que se enviarán a Supabase:", datos_a_guardar)  # Debug visible
+                    st.write("🔍 Datos que se enviarán a Supabase:", datos_a_guardar)
 
                     actualizar_registro(id_sel, datos_a_guardar)
                     st.success("✅ Registro actualizado con nueva predicción.")
-                    #st.rerun()
+                    # st.rerun()
                 else:
                     st.info("No se actualizó el registro.")
 
@@ -178,7 +169,8 @@ with st.expander("🗑️ Eliminar registro"):
     if st.button("❌ Confirmar eliminación"):
         eliminar_registro(id_sel)
         st.warning("Registro eliminado.")
-        #st.rerun()
+        # st.rerun()
+
 
 
 
