@@ -48,21 +48,33 @@ def eliminar_registro(id_registro):
 
 def actualizar_registro(id_registro, nuevos_valores):
     try:
-        #st.write("🔧 ID que se intenta actualizar:", id_registro)
-        #st.write("📝 Valores que se intentan guardar:", nuevos_valores)
+        st.write("🆔 ID que se intenta actualizar:", id_registro)
+        st.write("📦 Nuevos valores que se intentan guardar:", nuevos_valores)
 
+        # Ejecutar la actualización forzada
         response = (
             supabase
             .table("registros_pp")
             .update(nuevos_valores)
             .eq("id", id_registro)
+            .select("*")  # Devuelve la fila actualizada
             .execute()
         )
 
+        # Mostrar la respuesta completa
         st.write("✅ Respuesta de Supabase:", response)
+
+        # Validar si se actualizó algo
+        if response.data:
+            st.success("🎉 Registro actualizado correctamente.")
+        else:
+            st.warning("⚠️ La operación se ejecutó, pero no se actualizó ningún registro. Verifica si el ID existe o si los datos son iguales.")
+
         return response
+
     except Exception as e:
         st.error(f"❌ Error actualizando el registro: {e}")
         return None
+
 
 
