@@ -45,9 +45,12 @@ def eliminar_registro(id_registro):
 
 
 # --- Función para actualizar en Supabase ---
+
 def actualizar_registro(id_registro, nuevos_valores):
-    """Actualiza un registro existente en Supabase por su ID."""
     try:
+        st.write("🔧 ID que se intenta actualizar:", id_registro)
+        st.write("📝 Valores que se intentan guardar:", nuevos_valores)
+
         response = (
             supabase
             .table("registros_pp")
@@ -55,9 +58,11 @@ def actualizar_registro(id_registro, nuevos_valores):
             .eq("id", id_registro)
             .execute()
         )
+
+        st.write("✅ Respuesta de Supabase:", response)
         return response
     except Exception as e:
-        print(f"Error actualizando el registro: {e}")
+        st.error(f"❌ Error actualizando el registro: {e}")
         return None
 
 
