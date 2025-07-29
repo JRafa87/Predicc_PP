@@ -46,7 +46,7 @@ def eliminar_registro(id_registro):
 
 # --- Función para actualizar en Supabase ---
 
-def actualizar_registro(id_registro, nuevos_valores):
+def actualizar_registro(id_sel, datos_a_guardar):
     try:
         st.write("🆔 ID que se intenta actualizar:", id_registro)
         st.write("📦 Nuevos valores que se intentan guardar:", nuevos_valores)
@@ -55,7 +55,7 @@ def actualizar_registro(id_registro, nuevos_valores):
         response = (
             supabase
             .table("registros_pp")
-            .update(nuevos_valores)
+            .update(datos_a_guardar)
             .eq("id", id_registro)
             .select("*")  # Devuelve la fila actualizada
             .execute()
