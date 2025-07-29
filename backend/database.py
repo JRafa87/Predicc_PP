@@ -83,7 +83,7 @@ if "update_success" in st.session_state:
 # --- Vista de actualización interactiva ---
 st.title("🔧 Actualizar Registro")
 
-id_registro = st.number_input("ID del registro a actualizar", min_value=1, step=1)
+#id_registro = st.number_input("ID del registro a actualizar", min_value=1, step=1)
 
 # Obtener datos actuales del registro
 registro_actual = None

@@ -45,6 +45,7 @@ with st.expander("📌 Datos actuales del registro"):
 
 # Bloque de edición
 with st.expander("✏️ Editar registro", expanded=True):
+
     def input_field(label, valor_actual, tipo="numerico", opciones=None, key=None, enabled=True):
         if not enabled:
             st.text_input(label, value=str(valor_actual), disabled=True, key=key)
@@ -138,10 +139,10 @@ with st.expander("✏️ Editar registro", expanded=True):
                 confirmar = st.radio("¿Deseas actualizar el registro con la nueva predicción?", ["No", "Sí"], horizontal=True)
 
                 if confirmar == "Sí":
-                   tz = pytz.timezone("America/Lima")
-                   fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+                    tz = pytz.timezone("America/Lima")
+                    fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
-                   datos_a_guardar = {
+                    datos_a_guardar = {
                         **nuevos_valores,
                         "fertilidad": int(fert_pred),
                         "cultivo": cultivo_pred,
@@ -153,7 +154,6 @@ with st.expander("✏️ Editar registro", expanded=True):
                     actualizar_registro(id_sel, datos_a_guardar)
                     st.success("✅ Registro actualizado con nueva predicción.")
                     st.rerun()
-
                 else:
                     st.info("No se actualizó el registro.")
 
@@ -163,6 +163,7 @@ with st.expander("🗑️ Eliminar registro"):
         eliminar_registro(id_sel)
         st.warning("Registro eliminado.")
         st.rerun()
+
 
 
 
