@@ -117,6 +117,8 @@ with st.expander("✏️ Editar registro", expanded=True):
             cult_actual = registro_sel["cultivo"]
 
             if int(fert_pred) == fert_actual and cultivo_pred == cult_actual:
+                st.write("fert_pred:", int(fert_pred), "| fert_actual:", fert_actual)
+                st.write("cultivo_pred:", cultivo_pred, "| cult_actual:", cult_actual)
                 tz = pytz.timezone("America/Lima")
                 fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
                 actualizar_registro(id_sel, {
