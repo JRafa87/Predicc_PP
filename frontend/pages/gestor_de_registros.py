@@ -146,14 +146,14 @@ with st.expander("✏️ Editar registro", expanded=True):
                 if "confirmar_actualizacion" not in st.session_state:
                     st.session_state.confirmar_actualizacion = None
                 
-                st.session_state.confirmar_actualizacion = st.radio(
+                confirmar = st.radio(
                    "¿Deseas actualizar el registro con la nueva predicción?",
                     ["No", "Sí"],
                     horizontal=True,
                     key="radio_confirmacion"
                 )
 
-                if st.session_state.confirmar_actualizacion == "Sí":
+                if confirmar== "Sí":
                     tz = pytz.timezone("America/Lima")
                     fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
