@@ -153,7 +153,7 @@ with st.expander("✏️ Editar registro", expanded=True):
                     key="radio_confirmacion"
                 )
 
-                if confirmar == "Sí":
+                if st.session_state.confirmar_actualizacion == "Sí":
                     tz = pytz.timezone("America/Lima")
                     fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
