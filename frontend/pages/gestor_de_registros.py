@@ -125,6 +125,12 @@ with st.expander("✏️ Editar registro", expanded=True):
                     "cultivo": cultivo_pred,
                     "fecha": fecha_actual
                 })
+
+                # 🐞 DEPURACIÓN
+                st.write("🔍 ID del registro seleccionado:", id_sel)
+                st.write("🔍 Datos a guardar en Supabase:", datos_a_guardar)
+                respuesta = actualizar_registro(id_sel, datos_a_guardar)
+                
                 st.success("✅ Registro actualizado correctamente.")
                 st.rerun()
             else:

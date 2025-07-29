@@ -48,8 +48,8 @@ def eliminar_registro(id_registro):
 
 def actualizar_registro(id_registro, nuevos_valores):
     try:
-        st.write("🔧 ID que se intenta actualizar:", id_registro)
-        st.write("📝 Valores que se intentan guardar:", nuevos_valores)
+        #st.write("🔧 ID que se intenta actualizar:", id_registro)
+        #st.write("📝 Valores que se intentan guardar:", nuevos_valores)
 
         response = (
             supabase
