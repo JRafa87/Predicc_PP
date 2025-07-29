@@ -50,7 +50,7 @@ def actualizar_registro(id_registro, nuevos_valores):
     try:
         response = (
             supabase
-            .table("registros")
+            .table("registros_pp")
             .update(nuevos_valores)
             .eq("id", id_registro)
             .execute()
