@@ -143,14 +143,14 @@ with st.expander("✏️ Editar registro", expanded=True):
                 col1.metric("Cultivo actual", cult_actual)
                 col2.metric("Nuevo cultivo", cultivo_pred)
                 
-                if "confirmar_actualizacion" not in st.session_state:
-                    st.session_state.confirmar_actualizacion = None
-                confirmar = st.session_state.confirmar_actualizacion
+                #if "confirmar_actualizacion" not in st.session_state:
+                    #st.session_state.confirmar_actualizacion = None
+                
                 confirmar = st.radio(
                    "¿Deseas actualizar el registro con la nueva predicción?",
                     ["No", "Sí"],
                     horizontal=True,
-                    key="radio_confirmacion"
+                    key="confirmar_actualizacion"
                 )
 
                 if confirmar== "Sí":
