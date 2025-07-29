@@ -142,8 +142,16 @@ with st.expander("✏️ Editar registro", expanded=True):
 
                 col1.metric("Cultivo actual", cult_actual)
                 col2.metric("Nuevo cultivo", cultivo_pred)
-
-                confirmar = st.radio("¿Deseas actualizar el registro con la nueva predicción?", ["No", "Sí"], horizontal=True)
+                
+                if "confirmar_actualizacion" not in st.session_state:
+                    st.session_state.confirmar_actualizacion = None
+                
+                st.session_state.confirmar_actualizacion = st.radio(
+                   "¿Deseas actualizar el registro con la nueva predicción?",
+                    ["No", "Sí"],
+                    horizontal=True,
+                    key="radio_confirmacion"
+                )
 
                 if confirmar == "Sí":
                     tz = pytz.timezone("America/Lima")
