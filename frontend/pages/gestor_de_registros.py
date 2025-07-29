@@ -133,7 +133,7 @@ with st.expander("✏️ Editar registro", expanded=True):
                 #st.write("🔍 Datos a guardar en Supabase:", datos_a_guardar)
                 #respuesta = actualizar_registro(id_sel, datos_a_guardar)
                 st.success("✅ Registro actualizado correctamente.")
-                st.rerun()
+                #st.rerun()
             else:
                 st.warning("⚠️ La predicción ha cambiado:")
                 col1, col2 = st.columns(2)
@@ -177,7 +177,7 @@ with st.expander("🗑️ Eliminar registro"):
     if st.button("❌ Confirmar eliminación"):
         eliminar_registro(id_sel)
         st.warning("Registro eliminado.")
-        st.rerun()
+        #st.rerun()
 
 
 
