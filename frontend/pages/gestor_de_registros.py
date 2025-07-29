@@ -145,7 +145,7 @@ with st.expander("✏️ Editar registro", expanded=True):
                 
                 if "confirmar_actualizacion" not in st.session_state:
                     st.session_state.confirmar_actualizacion = None
-                
+                confirmar = st.session_state.confirmar_actualizacion
                 confirmar = st.radio(
                    "¿Deseas actualizar el registro con la nueva predicción?",
                     ["No", "Sí"],
