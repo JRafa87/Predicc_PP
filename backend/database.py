@@ -99,9 +99,8 @@ if registro_actual:
     # Campos editables
     nuevos_valores = {}
     campos_editables = ["tipo_suelo", "ph", "materia_organica", "conductividad", "nitrogeno", "fosforo", "potasio",
-                        "humedad", "densidad", "altitud", "temperatura", "velocidad_viento", "direccion_viento",
-                        "condiciones_clima", "probabilidad_precipitacion", "evapotranspiracion", "tipo_riego",
-                        "volumen_agua", "mes", "region"]
+                        "humedad", "densidad", "altitud", "temperatura","condiciones_clima", "evapotranspiracion",
+                         "mes"]
 
     for campo in campos_editables:
         valor = st.text_input(campo, value=str(registro_actual.get(campo, "")))
