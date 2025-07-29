@@ -155,15 +155,15 @@ with st.expander("✏️ Editar registro", expanded=True):
 
                 if confirmar== "Sí":
                     #if st.button("✅ Confirmar actualización"):
-                       tz = pytz.timezone("America/Lima")
-                       fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
+                tz = pytz.timezone("America/Lima")
+                fecha_actual = datetime.now(tz).strftime("%Y-%m-%d")
 
-                       datos_a_guardar = {
+                datos_a_guardar = {
                         **nuevos_valores,
                         "fertilidad": int(fert_pred),
                         "cultivo": cultivo_pred,
                         "fecha": fecha_actual
-                        }
+                }
 
                     st.write("🔍 Datos que se enviarán a Supabase:", datos_a_guardar)  # Debug visible
 
